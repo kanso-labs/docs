@@ -1,0 +1,71 @@
+---
+title: "Renovate"
+description: "How the organization's self-hosted Renovate runner keeps every Kanso Labs repository's dependencies current."
+icon: "arrows-rotate"
+---
+
+Every version a Kanso Labs repository pins exactly is moved forward by [Renovate](https://docs.renovatebot.com), through one self-hosted runner in [kanso-labs/renovate](https://github.com/kanso-labs/renovate). There is no Renovate app installation and no per-repository bot: one scheduled workflow runs Renovate against every repository it lists.
+
+## How it runs
+
+The `Renovate` workflow runs every three hours. It mints a short-lived token for the organization's GitHub App, then runs Renovate against each managed repository. The branches and pull requests it opens land in those repositories, not in the runner's.
+
+Because Renovate authenticates as an app, its commits are made through GitHub's API: they arrive signed, and show as Verified under `kanso-labs[bot]`.
+
+## What every repository gets
+
+The settings that have to hold everywhere live in one shared preset, [`renovate-config.json`](https://github.com/kanso-labs/.github/blob/main/renovate-config.json) in `kanso-labs/.github`, referenced as `local>kanso-labs/.github:renovate-config`.
+
+| Setting | Why |
+| --- | --- |
+| Commits are typed `deps` | So an upgrade cuts a release of its own. See [Commits and releases](/engineering/commits-and-releases#why-renovate-writes-deps). |
+| Minors and patches automerge | Once the required checks pass. A major waits for a person. |
+| No pull request limits | `prConcurrentLimit` and `prHourlyLimit` are 0, so every pending update is an open pull request. |
+| No Dependency Dashboard | With nothing held back, it would only restate the open pull requests. |
+| `.tool-versions` is read | Renovate's `mise` manager moves the Node pin with everything else. |
+| Rebased when behind `main` | `rebaseWhen: behind-base-branch`, and a closed pull request is recreated. |
+
+## Configuring a repository
+
+Renovate reads configuration from three places, and a repository's own file overrides the other two:
+
+| File | Reaches |
+| --- | --- |
+| The runner's `config.js` | Repositories that ship no config of their own |
+| The shared preset | Every repository |
+| A repository's `.github/renovate.json` | That repository alone |
+
+A repository's own file replaces list-valued settings rather than adding to them, `extends` above all. So it restates both presets, in this order, since a later preset wins:
+
+```json
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", "local>kanso-labs/.github:renovate-config"]
+}
+```
+
+Put what only that repository wants beside them: a package group, a version ceiling with the reason it exists, or a narrower rule that holds one package back from automerging. A rule there lands after the preset's, so it wins.
+
+<Note>
+  A setting meant for every repository goes in the shared preset, never in `config.js`. Every repository with a config of its own extends `config:recommended`, which reinstates whatever `config.js` turned off.
+</Note>
+
+## Adding a repository
+
+Listing a repository in the `repositories` array of the runner's [`config.js`](https://github.com/kanso-labs/renovate/blob/main/config.js) is the whole opt-in. Onboarding is off and no config file is required, so a repository receives no onboarding pull request.
+
+<Warning>
+  Remove a repository from that list in the same change that deletes or renames it on GitHub. Renovate fails the whole run on a name it cannot resolve, which stops updates in every other repository too.
+</Warning>
+
+A repository that calls the [shared actions](/engineering/shared-actions) has to be listed, since Renovate is the only thing that bumps those exact tags. And none should carry a `.github/dependabot.yml` for version updates: the two bots would open competing pull requests for the same upgrades. Dependabot is left to open security fixes alone.
+
+## Asking Renovate to act now
+
+Renovate reads a ticked rebase checkbox only on its next run, up to three hours away. A repository that calls the shared [`_renovate-command.yaml`](/engineering/shared-actions#renovate-command) workflow can comment `@renovate rebase` on a Renovate pull request instead, which ticks the box and starts a run within a minute.
+
+Anyone with access to the runner can also start a run by hand, with a dry run that logs what would change without writing anything:
+
+```bash
+gh workflow run renovate.yaml --repo kanso-labs/renovate -f dryRun=full
+```

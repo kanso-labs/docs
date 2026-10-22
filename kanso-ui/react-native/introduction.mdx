@@ -1,0 +1,49 @@
+---
+title: "Kanso UI for React Native"
+sidebarTitle: "Introduction"
+description: "Kanso UI's Material Design components for iOS and Android, on the same tokens and theming as the web library."
+icon: "book-open"
+---
+
+`@kanso-labs/react-native-kanso-ui` is [Kanso UI](/kanso-ui/web/introduction) for React Native. It keeps the web library's component names, props, token roles and Material Design readings, and draws them with React Native's own components rather than React Aria and StyleX, which do not run on native.
+
+A theme is the web library's: a set of `--kui-*` custom properties with values in CSS syntax. So **one theme object serves a web app and a native app alike**.
+
+<CardGroup cols={2}>
+  <Card title="Storybook" icon="swatchbook" href="https://react-native-kanso-ui.kansolabs.org/">
+    Every component through React Native Web, under each demo scheme.
+  </Card>
+  <Card title="Installation" icon="download" href="/kanso-ui/react-native/installation">
+    The package and the libraries it needs beside it.
+  </Card>
+  <Card title="Theming" icon="palette" href="/kanso-ui/react-native/theming">
+    `ThemeScope`, `useTheme()` and fonts.
+  </Card>
+  <Card title="Routing and localisation" icon="route" href="/kanso-ui/react-native/routing-and-localisation">
+    `RouterProvider` and `I18nProvider`.
+  </Card>
+</CardGroup>
+
+## How it relates to the web library
+
+| | Web | React Native |
+| --- | --- | --- |
+| Package | `@kanso-labs/kanso-ui` | `@kanso-labs/react-native-kanso-ui` |
+| Built on | React Aria Components and StyleX | `View`, `Text`, `Pressable` and Reanimated |
+| Theme | `--kui-*` map on `ThemeScope` | The same map on `ThemeScope` |
+| Reading a token | `var(--kui-color-primary)` | `useTheme().colors.primary` |
+| Styling a component | `className` | `style` |
+
+Both libraries read their tokens from [Kanso UI Core](/kanso-ui/core/introduction), so a token changes in one place and reaches both.
+
+## Previewing on a device
+
+The published Storybook renders through React Native Web, which catches token, layout and contrast drift but says nothing about how iOS or Android draws text and shadows. The repository's `example/` app is an on-device Storybook that reads the same stories in Expo Go:
+
+```bash
+cd example
+npm install
+npm start
+```
+
+Then open it from the QR code Expo prints.

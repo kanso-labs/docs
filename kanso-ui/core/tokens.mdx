@@ -1,0 +1,54 @@
+---
+title: "Design tokens"
+description: "One W3C Design Tokens file, the stylesheet and defaults built from it, and how a token change reaches both libraries."
+icon: "swatchbook"
+---
+
+## The source
+
+`src/tokens/design.tokens.json` is the token source both libraries build from, in the [W3C Design Tokens](https://www.designtokens.org/) format. It holds every group a component reads, colour, typography, spacing, radii, shadows, motion and the state-layer opacities, and under `$extensions` the copy guidelines the libraries' own words follow, from sentence case to what to avoid.
+
+The package publishes it unchanged as `tokens.json`.
+
+## What is built from it
+
+<ResponseField name="tokens.css" type="stylesheet">
+  Every `--kui-*` custom property at its light value on `:root`, and the colours again under `prefers-color-scheme: dark`. It is the override contract both libraries publish: redeclare any property in it to retheme every component.
+</ResponseField>
+
+<ResponseField name="light, dark" type="Required<KuiTheme>">
+  Every property mapped to its value in CSS syntax, one map per scheme.
+</ResponseField>
+
+<ResponseField name="breakpoints" type="object">
+  The window size classes, in px on the web and dp on native: `compact` 0, `medium` 600, `expanded` 840, `large` 1200 and `extraLarge` 1600. They are not custom properties, because a media query cannot read `var()`.
+</ResponseField>
+
+<ResponseField name="KuiTheme" type="type">
+  The shape of a theme: a partial map of `--kui-*` properties, each documented with its default. It is what `ThemeScope` takes in both libraries.
+</ResponseField>
+
+```ts
+import { breakpoints, dark, type KuiTheme, light } from '@kanso-labs/kanso-ui-core'
+
+light['--kui-color-primary'] // the light default, as a CSS value
+breakpoints.expanded // 840
+```
+
+## How a token change travels
+
+The design system's source of truth is the Kanso UI design system artifact, where a person edits a token or its usage note. A daily sync brings that edit here as a pull request, and from there:
+
+<Steps>
+  <Step title="Merged here">
+    The pull request changes `design.tokens.json`, and release-please cuts a kanso-ui-core release.
+  </Step>
+  <Step title="Bumped in each library">
+    Renovate opens a bump of `@kanso-labs/kanso-ui-core` in kanso-ui and in react-native-kanso-ui.
+  </Step>
+  <Step title="Released by each library">
+    Each library rebuilds its token modules from the new release and ships them in its own next release.
+  </Step>
+</Steps>
+
+Neither library holds a token value of its own, so there is no second copy to drift.

@@ -1,0 +1,37 @@
+---
+title: "CSS cascade layers"
+description: "Order the library's rules against your own stylesheets, Tailwind and resets."
+icon: "layer-group"
+---
+
+StyleX compiles the library's own rules into one CSS cascade layer named `kanso`. A stylesheet of your own that is **not** layered beats every rule in that layer wherever the two meet. There is no specificity contest, and no `!important`.
+
+## Layered CSS names the order
+
+CSS that is layered takes its place from the order its layers are named in, so an app whose CSS is layered names the order itself.
+
+### Tailwind v4
+
+Tailwind v4 writes its preflight into `base` and its utilities into `utilities`. Put `kanso` between them, so a utility at the call site wins and the preflight does not empty a button:
+
+```css
+@layer theme, base, kanso, components, utilities;
+@import 'tailwindcss';
+```
+
+### A reset that is not layered
+
+A reset that is not layered, such as Tailwind v3's preflight or a normalize sheet, beats every layered rule, the library's included, and turns a filled button transparent. Give it a layer ordered before `kanso`:
+
+```css
+@layer reset, kanso;
+@import 'modern-normalize.css' layer(reset);
+```
+
+<Warning>
+A layer's place is fixed where it is first named. Put the `@layer` statement at the top of the stylesheet your app loads first, ahead of the library's.
+</Warning>
+
+## You don't need a reset
+
+The library ships no reset and depends on none. Every element it renders sets `box-sizing: border-box` itself, so a component lays out the same with or without one.

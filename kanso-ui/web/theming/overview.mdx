@@ -1,0 +1,54 @@
+---
+title: "Theming"
+sidebarTitle: "Overview"
+description: "Retheme every component by overriding the --kui-* custom properties."
+icon: "palette"
+---
+
+Every design token, colour, spacing, radii, sizing, shadows, typography and state-layer opacity, is backed by a CSS custom property under the `--kui-*` namespace. Override any of them in your own stylesheet to retheme every component, whatever your app's build tooling:
+
+```css
+:root {
+  --kui-color-primary: #ff5722;
+  --kui-color-on-primary: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --kui-color-primary: #ffab91;
+    --kui-color-on-primary: #3e0800;
+  }
+}
+```
+
+Overrides on `:root` reach the whole page. To theme part of one, see [Theming part of a page](/kanso-ui/web/theming/theme-scope).
+
+## Finding the names
+
+`@kanso-labs/kanso-ui/tokens.css` is the generated reference for every available property and its default value. It is for discovering names and is not needed at runtime, since components already carry their defaults:
+
+```ts
+import '@kanso-labs/kanso-ui/tokens.css'
+```
+
+The tokens are also published as `@kanso-labs/kanso-ui/tokens.json`, the [W3C Design Tokens (DTCG)](https://design-tokens.github.io/community-group/format/) source they are built from, for a library or tool that builds its own output from the same values. Both come from [Kanso UI Core](/kanso-ui/core/introduction).
+
+## The same theme on React Native
+
+[Kanso UI for React Native](/kanso-ui/react-native/introduction) reads the same `--kui-*` names with the same CSS values, so one theme object serves a web app and a native app alike.
+
+## For StyleX consumers
+
+An app that also uses StyleX themes the same way, through the `--kui-*` properties and `ThemeScope`. The token objects [`stylex.createTheme()`](https://stylexjs.com/docs/learn/theming/) would take aren't part of the public API yet; [open an issue](https://github.com/kanso-labs/kanso-ui/issues) if you need them exported.
+
+<CardGroup cols={3}>
+  <Card title="Material Theme Builder" icon="wand-magic-sparkles" href="/kanso-ui/web/theming/material-theme-builder">
+    Generate a whole scheme from one colour.
+  </Card>
+  <Card title="Part of a page" icon="crop" href="/kanso-ui/web/theming/theme-scope">
+    Scope a theme with `ThemeScope`.
+  </Card>
+  <Card title="Light or dark" icon="circle-half-stroke" href="/kanso-ui/web/theming/light-and-dark">
+    Pin a scheme from your own switch.
+  </Card>
+</CardGroup>

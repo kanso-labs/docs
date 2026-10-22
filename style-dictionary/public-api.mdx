@@ -1,0 +1,51 @@
+---
+title: "Public API"
+description: "Five bundler entry points, one root entry and two types."
+icon: "box"
+---
+
+The API is small on purpose.
+
+| Import | What it is |
+| --- | --- |
+| `@kanso-labs/unplugin-style-dictionary/vite` | The Vite plugin, as the default export |
+| `@kanso-labs/unplugin-style-dictionary/rolldown` | The Rolldown plugin |
+| `@kanso-labs/unplugin-style-dictionary/rollup` | The Rollup plugin |
+| `@kanso-labs/unplugin-style-dictionary/rspack` | The Rspack plugin |
+| `@kanso-labs/unplugin-style-dictionary/webpack` | The webpack plugin |
+| `@kanso-labs/unplugin-style-dictionary` | The unplugin instance, as the default export and as `unplugin` |
+| `UnpluginStyleDictionaryOptions` | The [options](/style-dictionary/options) type, from every entry |
+| `StyleDictionaryConfigContext` | What the function form of `config` is handed, from every entry |
+
+Anything else is internal, whatever a build output happens to contain.
+
+## The root entry
+
+Reach for it when one options object feeds more than one bundler:
+
+```ts
+import styleDictionary from '@kanso-labs/unplugin-style-dictionary'
+
+const options = { config: 'sd.config.json' }
+
+const forRollup = styleDictionary.rollup(options)
+const forWebpack = styleDictionary.webpack(options)
+```
+
+Its `.vite`, `.rolldown`, `.rollup`, `.rspack` and `.webpack` are the same plugins the subpaths export.
+
+<Warning>
+The root entry also carries unplugin's own `.esbuild`, `.farm`, `.unloader`, `.rsbuild`, `.bun` and `.raw`, which are not supported. `.esbuild` fails outright: the plugin registers its watch list before it compiles, and unplugin's esbuild context throws on that, so it writes nothing even for a one-shot build. Nothing tests the others.
+</Warning>
+
+## CommonJS
+
+The package ships ES modules only, and Node serves a `require()` of it through `require(esm)`, which hands back the module namespace. Take the plugin from `.default`:
+
+```js webpack.config.cjs
+const styleDictionary = require('@kanso-labs/unplugin-style-dictionary/webpack').default
+
+module.exports = {
+  plugins: [styleDictionary({ config: 'sd.config.json' })],
+}
+```

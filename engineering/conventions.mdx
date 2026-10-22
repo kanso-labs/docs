@@ -1,0 +1,77 @@
+---
+title: "Conventions"
+description: "The rules every Kanso Labs repository follows, and the reasoning behind each."
+icon: "list-check"
+---
+
+Every repository in the organization follows the same six conventions. Each one restates them in its own `AGENTS.md`, under **Shared with the other kanso-labs repositories**, because an agent handed one repository reads that file and never sees the others. The canonical text is [`CONVENTIONS.md`](https://github.com/kanso-labs/.github/blob/main/CONVENTIONS.md) in `kanso-labs/.github`.
+
+## The shared set
+
+<AccordionGroup>
+  <Accordion title="Keys in JSON and YAML are ordered by name" icon="arrow-down-a-z" defaultOpen>
+    Files whose order carries meaning are exempt: workflows, where step order is execution order; changelogs, which are chronological; and `package.json`, where the npm ecosystem expects `name` and `version` first.
+
+    In TypeScript the same rule is enforced rather than trusted: the Node repositories run `eslint-plugin-perfectionist` at `recommended-natural`, so object keys, imports and union members are sorted by the linter.
+  </Accordion>
+  <Accordion title="A workflow's filename is the kebab-case of its name" icon="file-code">
+    `name: Release Please` lives in `release-please.yaml`. Reusable workflows, meaning those triggered only by `workflow_call`, take a leading underscore, so `_publish-npm.yaml` sits apart from the entry points in a folder listing. The extension is `.yaml` everywhere, apart from files a tool only finds under `.yml`, such as `codecov.yml`.
+  </Accordion>
+  <Accordion title="Job names and step names are imperative verb phrases" icon="terminal">
+    `Build`, `Run the unit tests`, `Publish to npm`. Job ids, step ids and matrix keys are exempt, since renaming them means updating every `needs` and `steps` reference for no visible benefit.
+
+    A job name is also a check name, and a ruleset requiring checks matches them by exact string. Renaming a job means renaming it in the ruleset in the same change.
+  </Accordion>
+  <Accordion title="Actions are pinned to exact release tags" icon="thumbtack">
+    `actions/checkout@v7.0.1`, never `@main` and never a tag the publisher moves: `@v7` and `@v7.0` both move. Renovate opens the bump pull requests, and it has nothing to open when the pin never changes. `frenck/action-app-linter@v2.21` sat still through a repository rename and a release that fixed something a consumer was working around, because the tag it named was moved onto both.
+  </Accordion>
+  <Accordion title="Dependency versions are pinned exactly" icon="lock">
+    Every `dependencies`, `devDependencies` and `optionalDependencies` entry is a bare version, `1.2.3`, never `^1.2.3`, `~1.2.3`, `>=1.2.3`, `*`, `1.x` or an `||` union. Renovate opens those bumps too, so a release that changes something arrives as a pull request you can read rather than a surprise on the next install.
+
+    `peerDependencies` are the deliberate exception. They state what the consumer's own installed copy must satisfy, so ranges are correct there and stay.
+  </Accordion>
+  <Accordion title=".tool-versions pins a fully specified version on every line" icon="code-branch">
+    `nodejs 24.21.0`, never `nodejs 24` or `nodejs lts`.
+  </Accordion>
+</AccordionGroup>
+
+## Read the version from the file
+
+The `.tool-versions` rule reaches further than it looks. The shared `setup-node` action reads `node-version-file` from `.tool-versions` by default, so that file is what every CI run resolves. A version written into prose beside it goes stale on the next Renovate bump while the pin moves on, so a command that needs the version reads it out of the file:
+
+```shell
+mise exec node@"$(awk '/^nodejs/{print $2}' .tool-versions)" -- npm install
+```
+
+It matters for more than the version number. An older npm rewrites `package-lock.json` as it installs, in a way no check can see, so installing under the pinned Node is what keeps the lockfile honest.
+
+## Formatting is not shared
+
+Assuming it is will send you to a command that does not exist. Each repository says what it runs under **Commands** in its `AGENTS.md`:
+
+| Repository | Formatter | Command |
+| --- | --- | --- |
+| kanso-ui, kanso-ui-core, react-native-kanso-ui, unplugin-style-dictionary | oxfmt | `npm run format` |
+| actions | Prettier | `npm run format` |
+| home-assistant-applications | Prettier | `npx prettier --write .` |
+| home-assistant-robot-vacuum-map | ruff for Python, Prettier for the rest | `uv run ruff format` and `npx prettier --write .` |
+| renovate, .github | none | match the surrounding style by hand |
+
+`LICENSE.md` is exempt everywhere, since it is the organization's licence and stays byte-identical in every repository. Changelogs that release-please writes are exempt too, because formatting one only holds until the next release pull request rewrites it.
+
+## Changing a convention
+
+Nothing enforces the copies, deliberately: the organization decided a checker was not worth what it would catch. So a change to the shared set is a change to every copy, and the discipline is the only thing holding them together.
+
+<Steps>
+  <Step title="Edit CONVENTIONS.md first">
+    It is the copy that is right by definition.
+  </Step>
+  <Step title="Open a pull request per repository">
+    Each carries the same edit to its `AGENTS.md`. A copy that has drifted is wrong not because it disagrees with a checker, but because the next agent to read it will follow it.
+  </Step>
+</Steps>
+
+<Card title="Commits and releases" icon="code-commit" href="/engineering/commits-and-releases">
+  How a pull request title becomes a version, a changelog line and a release.
+</Card>

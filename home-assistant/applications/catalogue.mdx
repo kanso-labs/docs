@@ -1,0 +1,56 @@
+---
+title: "Catalogue"
+description: "Every application, what it does, and where its web interface is."
+icon: "grid-2x2"
+---
+
+Each name links to the application's own documentation, the same page its **Documentation** tab shows. **Ingress** means it opens inside Home Assistant; a port means it is also, or only, served there on your Home Assistant's address.
+
+| Application | What it does | Web interface |
+| --- | --- | --- |
+| [Authentik](https://github.com/kanso-labs/home-assistant-applications/blob/main/authentik/DOCS.md) | Identity provider for single sign-on, fronting your applications with OAuth2, OIDC, SAML, LDAP and proxy auth. | Ingress, port 9000 |
+| [Avahi Publisher](https://github.com/kanso-labs/home-assistant-applications/blob/main/avahi-publisher/DOCS.md) | Publishes extra .local names and Bonjour services on your network, using the official Avahi. | None |
+| [Bazarr](https://github.com/kanso-labs/home-assistant-applications/blob/main/bazarr/DOCS.md) | Subtitle manager for Radarr and Sonarr, keeping subtitles alongside the media. | Ingress, port 6767 |
+| [Bazarr+](https://github.com/kanso-labs/home-assistant-applications/blob/main/bazarr-plus/DOCS.md) | Bazarr fork adding a subtitle provider marketplace, bilingual subtitles and AI translation. | Ingress, port 6767 |
+| [Byparr](https://github.com/kanso-labs/home-assistant-applications/blob/main/byparr/DOCS.md) | Proxy that gets past anti-bot challenges for the arr applications, answering the same requests as FlareSolverr. | None |
+| [Cleanuparr](https://github.com/kanso-labs/home-assistant-applications/blob/main/cleanuparr/DOCS.md) | Strikes stuck and unwanted downloads from the arr queues and asks for replacements. | Ingress, port 11011 |
+| [Configarr](https://github.com/kanso-labs/home-assistant-applications/blob/main/configarr/DOCS.md) | Syncs TRaSH Guides and Recyclarr templates into Sonarr, Radarr and Prowlarr. | None |
+| [FlareSolverr](https://github.com/kanso-labs/home-assistant-applications/blob/main/flaresolverr/DOCS.md) | Proxy that solves the challenges standing between the arr applications and their indexers. | None |
+| [Flight Finder](https://github.com/kanso-labs/home-assistant-applications/blob/main/flight-finder/DOCS.md) | Tracks flight, hotel and car rental prices, with price history and alerts when they drop. | Port 3003 |
+| [Grimmory](https://github.com/kanso-labs/home-assistant-applications/blob/main/grimmory/DOCS.md) | Library for your ebooks, comics and audiobooks, with a browser reader and Kobo and KOReader sync. | Ingress, port 6060 |
+| [Immich](https://github.com/kanso-labs/home-assistant-applications/blob/main/immich/DOCS.md) | Backs up the photos and videos on your phones, grouping faces and finding photos by what is in them. | Port 2283 |
+| [Immich Machine Learning](https://github.com/kanso-labs/home-assistant-applications/blob/main/immich-machine-learning/DOCS.md) | Face recognition and smart search for Immich, on an Intel GPU through OpenVINO. | None |
+| [Immich Power Tools](https://github.com/kanso-labs/home-assistant-applications/blob/main/immich-power-tools/DOCS.md) | Bulk tools for Immich: merging people, filling in missing locations and finding albums to make. | Port 3000 |
+| [Lingarr](https://github.com/kanso-labs/home-assistant-applications/blob/main/lingarr/DOCS.md) | Translates the subtitles your library is missing, through LibreTranslate, DeepL or an AI service. | Ingress, port 9876 |
+| [Muxarr](https://github.com/kanso-labs/home-assistant-applications/blob/main/muxarr/DOCS.md) | Strips unwanted audio and subtitle tracks from your media, remuxing rather than re-encoding. | Port 8183 |
+| [n8n](https://github.com/kanso-labs/home-assistant-applications/blob/main/n8n/DOCS.md) | Workflow automation connecting your services and Home Assistant, with a visual editor, code steps and AI nodes. | Ingress |
+| [NAT Gateway](https://github.com/kanso-labs/home-assistant-applications/blob/main/nat-gateway/DOCS.md) | Shares this host's network connection with a device plugged straight into a spare Ethernet port, such as a NAS. | None |
+| [Nginx Proxy Manager](https://github.com/kanso-labs/home-assistant-applications/blob/main/nginx-proxy-manager/DOCS.md) | Reverse proxy with a web interface and free Let's Encrypt certificates for the services behind it. | Port 81 |
+| [Notifiarr](https://github.com/kanso-labs/home-assistant-applications/blob/main/notifiarr/DOCS.md) | Unified client for Notifiarr.com, reporting on the stack and letting Discord drive it. | Ingress, port 5454 |
+| [NZBGet](https://github.com/kanso-labs/home-assistant-applications/blob/main/nzbget/DOCS.md) | Usenet downloader, fetching from your news servers into shared storage. | Ingress, port 6789 |
+| [Plex Media Server](https://github.com/kanso-labs/home-assistant-applications/blob/main/plex-media-server/DOCS.md) | Serves recorded media, live TV, online news and podcasts to the Plex apps. | Port 32400 |
+| [Profilarr](https://github.com/kanso-labs/home-assistant-applications/blob/main/profilarr/DOCS.md) | Builds quality profiles and custom formats, tracks them against curated databases, and syncs them to every arr instance. | Ingress, port 6868 |
+| [Prowlarr](https://github.com/kanso-labs/home-assistant-applications/blob/main/prowlarr/DOCS.md) | Indexer manager, pushing one set of definitions out to the whole arr stack. | Ingress, port 9696 |
+| [qBittorrent](https://github.com/kanso-labs/home-assistant-applications/blob/main/qbittorrent/DOCS.md) | BitTorrent client, downloading into shared storage for the rest of the stack. | Ingress, port 8080 |
+| [Radarr](https://github.com/kanso-labs/home-assistant-applications/blob/main/radarr/DOCS.md) | Movie collection manager that grabs, sorts and renames what your indexers turn up. | Ingress, port 7878 |
+| [Seadexerr](https://github.com/kanso-labs/home-assistant-applications/blob/main/seadexerr/DOCS.md) | Prowlarr indexer offering the SeaDex release of each anime, built on your Home Assistant. | None |
+| [Seerr](https://github.com/kanso-labs/home-assistant-applications/blob/main/seerr/DOCS.md) | Request and discovery front end for Jellyfin, Plex and Emby, feeding Radarr and Sonarr. | Ingress, port 5055 |
+| [Sonarr](https://github.com/kanso-labs/home-assistant-applications/blob/main/sonarr/DOCS.md) | Smart PVR that follows the shows you watch and grabs new episodes as they appear. | Ingress, port 8989 |
+| [Tdarr](https://github.com/kanso-labs/home-assistant-applications/blob/main/tdarr/DOCS.md) | Runs your library through flows of FFmpeg, HandBrake and MKVToolNix steps, built on your Home Assistant. | Ingress, port 8265 |
+| [Traefik](https://github.com/kanso-labs/home-assistant-applications/blob/main/traefik/DOCS.md) | Reverse proxy that sends each request to the application its host name belongs to, routed from the Configuration tab. | Ingress |
+| [Unpackerr](https://github.com/kanso-labs/home-assistant-applications/blob/main/unpackerr/DOCS.md) | Extracts completed downloads in place, then cleans up once the arr applications import. | None |
+| [Wallos](https://github.com/kanso-labs/home-assistant-applications/blob/main/wallos/DOCS.md) | Tracks your subscriptions and what they cost, with a notification before each payment. | Ingress, port 8282 |
+
+<Info>
+[home-assistant.kansolabs.org](https://home-assistant.kansolabs.org/) shows the same applications as cards, generated from each one's `config.yaml` every time the repository changes.
+</Info>
+
+## Licences
+
+The packaging is MIT licensed. The applications it packages keep their own terms, mostly a GNU licence or MIT, with some worth knowing before you install:
+
+- **n8n** is fair-code, under its Sustainable Use License.
+- **Plex Media Server** is proprietary and used under Plex's terms.
+- **Tdarr** is free for personal use under a licence that forbids redistributing it, and **Seadexerr** carries no licence at all, which is why neither has an image. Your Home Assistant builds each one itself.
+
+Each application's documentation records its licence and credits the packaging it was ported from, most often [hassio-addons](https://github.com/hassio-addons).

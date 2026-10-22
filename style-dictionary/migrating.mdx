@@ -1,0 +1,35 @@
+---
+title: "Migrating from the Vite plugin"
+sidebarTitle: "Migrating"
+description: "Moving from @kanso-labs/vite-plugin-style-dictionary."
+icon: "arrow-right-left"
+---
+
+This package was published as `@kanso-labs/vite-plugin-style-dictionary`, written directly as a Vite plugin. The unplugin rewrite changes three things for a Vite project, and nothing about how it behaves.
+
+<Steps>
+  <Step title="Install the new package">
+    ```bash
+    npm uninstall @kanso-labs/vite-plugin-style-dictionary
+    npm install --save-dev @kanso-labs/unplugin-style-dictionary
+    ```
+  </Step>
+  <Step title="Import the Vite entry">
+    The root import is no longer a Vite plugin. Import `/vite`, which is a drop-in replacement for the old default export:
+
+    ```ts vite.config.ts
+    import StyleDictionary from '@kanso-labs/unplugin-style-dictionary/vite'
+    ```
+  </Step>
+  <Step title="Rename the options type">
+    `VitePluginStyleDictionaryOptions` is now `UnpluginStyleDictionaryOptions`, exported from every entry point:
+
+    ```ts
+    import type { UnpluginStyleDictionaryOptions } from '@kanso-labs/unplugin-style-dictionary/vite'
+    ```
+
+    The options themselves, `config`, `watch` and `silent`, keep their shape.
+  </Step>
+</Steps>
+
+Under Vite, compiling in `buildStart` and rebuilding under the dev server work as they did. The other targets are new: see [Bundlers](/style-dictionary/bundlers).

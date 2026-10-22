@@ -1,0 +1,62 @@
+---
+title: "Unplugin Style Dictionary"
+sidebarTitle: "Introduction"
+description: "Compile Style Dictionary design tokens ahead of your bundler, with watching and rebuilds under Vite, Rolldown, Rollup, Rspack and Webpack."
+icon: "palette"
+---
+
+`@kanso-labs/unplugin-style-dictionary` compiles [Style Dictionary](https://styledictionary.com/) design tokens before your bundler needs them, and compiles them again when a token file changes while a dev server or a watch build runs.
+
+It is built on [unplugin](https://unplugin.unjs.io/), so one implementation serves five bundlers. That matters when a project has more than one build surface, such as Storybook and Vitest on Vite beside a package build on Rolldown or tsdown, and both need the tokens compiled first.
+
+<CardGroup cols={2}>
+  <Card title="Install it" icon="download" href="/style-dictionary/installation">
+    The package, its peers and the Node it needs.
+  </Card>
+  <Card title="Add it to your bundler" icon="plug" href="/style-dictionary/bundlers">
+    Vite, Rolldown, Rollup, Rspack and Webpack.
+  </Card>
+  <Card title="Configure it" icon="sliders" href="/style-dictionary/configuration">
+    Files, objects, functions and custom formats.
+  </Card>
+  <Card title="Every option" icon="list" href="/style-dictionary/options">
+    The full options reference.
+  </Card>
+</CardGroup>
+
+## What it does
+
+<AccordionGroup>
+  <Accordion title="One implementation, five bundlers" icon="layer-group">
+    Vite, Rolldown, Rollup, Rspack and Webpack each get an entry point of their own. Every one of them compiles the tokens before the build that reads them, and rebuilds on a token change under its watch mode.
+  </Accordion>
+  <Accordion title="Watches what your tokens are made of" icon="eye">
+    The plugin reads the `source` and `include` patterns of each Style Dictionary configuration and watches the files they match, a token package linked into `node_modules` in a workspace included. A file created later under a watched pattern is picked up too.
+  </Accordion>
+  <Accordion title="Shows a failed rebuild in the browser" icon="triangle-exclamation">
+    Under Vite's dev server a rebuild that fails reaches the error overlay, and the next rebuild that succeeds dismisses it.
+  </Accordion>
+  <Accordion title="Never leaves a half-written file" icon="file-shield">
+    Every generated file is written to a temporary sibling and renamed into place, so code reading one mid-rebuild never sees it half-written. A file whose contents did not change is left alone, so a rebuild that changes nothing fires no file event.
+  </Accordion>
+  <Accordion title="Skips a build that would change nothing" icon="forward">
+    A configuration whose output already reflects everything it reads is not compiled again. See [Caching](/style-dictionary/caching).
+  </Accordion>
+  <Accordion title="Builds several configurations" icon="swatchbook">
+    Pass an array for multiple brands or themes. Configurations compile one after another, so two of them can safely write to the same destination.
+  </Accordion>
+</AccordionGroup>
+
+## Where it lives
+
+<CardGroup cols={3}>
+  <Card title="GitHub" icon="github" href="https://github.com/kanso-labs/unplugin-style-dictionary">
+    Source, issues and the changelog.
+  </Card>
+  <Card title="npm" icon="npm" href="https://www.npmjs.com/package/@kanso-labs/unplugin-style-dictionary">
+    `@kanso-labs/unplugin-style-dictionary`
+  </Card>
+  <Card title="Roadmap" icon="map" href="https://github.com/orgs/kanso-labs/projects/3">
+    What is planned next.
+  </Card>
+</CardGroup>

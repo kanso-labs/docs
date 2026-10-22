@@ -1,0 +1,83 @@
+---
+title: "Routing and localisation"
+description: "Make href press through your router, and have the components write in your app's locale."
+icon: "route"
+---
+
+## Routing
+
+A component with an `href` presses through the app's router once the app is wrapped in `RouterProvider`, which takes the router's `navigate`. Without one, and for any URL with a scheme of its own such as `https:` or `mailto:`, the `href` is opened with `Linking.openURL`.
+
+<Tabs>
+  <Tab title="Expo Router">
+    ```tsx app/_layout.tsx
+    import { RouterProvider } from '@kanso-labs/react-native-kanso-ui'
+    import { type Href, Stack, useRouter } from 'expo-router'
+
+    export default function RootLayout() {
+      const router = useRouter()
+      return (
+        <RouterProvider navigate={(href) => router.push(href as Href)}>
+          <Stack />
+        </RouterProvider>
+      )
+    }
+    ```
+
+    The `as Href` is there for typed routes, which type `push` with the app's own paths rather than any string.
+  </Tab>
+  <Tab title="React Navigation">
+    `useLinkTo` turns a path into a navigation through the container's `linking` configuration, so the provider goes inside the container:
+
+    ```tsx
+    import type { ReactNode } from 'react'
+
+    import { RouterProvider } from '@kanso-labs/react-native-kanso-ui'
+    import { NavigationContainer, useLinkTo } from '@react-navigation/native'
+
+    function Routed({ children }: { children: ReactNode }) {
+      const linkTo = useLinkTo()
+      return <RouterProvider navigate={linkTo}>{children}</RouterProvider>
+    }
+
+    export default function App() {
+      return (
+        <NavigationContainer linking={linking}>
+          <Routed>
+            <RootStack />
+          </Routed>
+        </NavigationContainer>
+      )
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Localisation
+
+Wrap the app in `I18nProvider` and the components write in its locale: the library's own words, such as a pending ring's name, a bottom sheet's handle or a calendar's chevrons, and its numbers and dates, such as a `Currency`'s amount or a `Calendar`'s month. A component given a `locale` of its own writes in that one instead.
+
+Outside any provider, and for a locale the runtime cannot parse, the components write in the device's. So an app that follows the device needs no provider. One with a language setting of its own passes it, falling back to the device's first language:
+
+```tsx app/_layout.tsx
+import { I18nProvider } from '@kanso-labs/react-native-kanso-ui'
+import { useLocales } from 'expo-localization'
+import { Stack } from 'expo-router'
+
+export default function RootLayout() {
+  const [device] = useLocales()
+  const language = useLanguageSetting() // the app's own, or undefined
+
+  return (
+    <I18nProvider locale={language ?? device?.languageTag}>
+      <Stack />
+    </I18nProvider>
+  )
+}
+```
+
+`useLocale()` returns `direction` and `locale`, as React Aria's does on the web, for an app's own formatting to match.
+
+<Note>
+  The direction is `I18nManager`'s, which is what React Native lays out by. The provider sets none: an app turns its layout over with `I18nManager.forceRTL` and a reload.
+</Note>

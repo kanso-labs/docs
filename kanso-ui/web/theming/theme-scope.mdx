@@ -1,0 +1,49 @@
+---
+title: "Theming part of a page"
+sidebarTitle: "Part of a page"
+description: "Resolve the tokens again on a ThemeScope, so an override reaches only what is inside it."
+icon: "crop"
+---
+
+The tokens resolve once, on `:root`, and every component inherits them already resolved. A `--kui-*` property redeclared on a wrapping `<div>` therefore reaches nothing on its own.
+
+`ThemeScope` resolves them again on an element of its own. An override handed to the scope's `theme`, or declared on it through `className` or `style`, or on any element around it, reaches every component inside, and the rest of the page keeps its own tokens:
+
+```tsx
+import { type KuiTheme, Select, ThemeScope } from '@kanso-labs/kanso-ui'
+
+const accent: KuiTheme = {
+  '--kui-color-on-primary': '#ffffff',
+  '--kui-color-primary': '#7d5260',
+}
+
+function Section() {
+  return (
+    <ThemeScope theme={accent}>
+      <Select label="Label">…</Select>
+    </ThemeScope>
+  )
+}
+```
+
+`KuiTheme` is the list `tokens.css` declares, as a type: every property is optional, takes a value in CSS syntax, and shows its default in an editor. A class carrying the same declarations does the same job, for an app that would rather keep them in a stylesheet.
+
+`theme` holds one value per property for both schemes, so a theme with a light and a dark value is two maps, and the scope is handed the one for the scheme in use.
+
+## Pinning a scheme on the scope
+
+`scheme` pins the scope to `'light'` or `'dark'`, whatever the OS asks for. Left unset, the scope keeps the scheme around it, so a scope inside a dark page stays dark.
+
+## Overlays come along
+
+React Aria portals a popover, a sheet, a tooltip or a snackbar to the end of `<body>`, outside any wrapper. One opened inside a `ThemeScope` portals into the scope instead, and takes its tokens with it.
+
+<Warning>
+An ancestor confining its descendants confines those overlays too. A `transform` or a `filter` makes a sheet's scrim cover that ancestor rather than the viewport, and `overflow: hidden` clips a popover. Put the scope around such an element rather than inside it.
+</Warning>
+
+The overlays' container is one more child of the scope's element, after everything the scope renders. It takes up no room, but selectors that count children count it: inside the scope, the last element you render is not `:last-child`, a lone child is not `:only-child`, and an empty scope is not `:empty`. Key a rule like that on a class of your own, or put the scope around the element whose children it counts.
+
+## The class form
+
+`themeScope` is the same thing as a class name, for an element you render yourself. Overlays opened under it still portal to the body and keep the page's tokens, since nothing tells them otherwise.

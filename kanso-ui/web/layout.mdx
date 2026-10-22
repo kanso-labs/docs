@@ -1,0 +1,57 @@
+---
+title: "Layout"
+description: "Container, Stack, Feed and the pane layouts, and lining an app bar up with the page below it."
+icon: "table-columns"
+---
+
+`Container` centres content at a measure, and `Stack` puts one gap from the spacing scale between a row or a column of children. Between them they cover page measure, section rhythm, and the ordinary rows and columns that would otherwise be bespoke CSS in every app.
+
+```tsx
+<Container>
+  <Stack gap="xl">
+    <Stack align="center" direction="row" gap="sm" justify="between" wrap>
+      <Text variant="titleLarge">Headline</Text>
+      <Button>Save changes</Button>
+    </Stack>
+    <Feed minItemWidth="260px">{items}</Feed>
+  </Stack>
+</Container>
+```
+
+Both are layout only: they paint no surface and wrap no child. `Stack` is why no component here carries a margin of its own, since the space between two things belongs to whatever holds both of them.
+
+## Page layouts
+
+For a list beside a detail pane, or a main pane with a companion, use `ListDetail` and `SupportingPane`. They follow Material Design's canonical layouts and stand the panes side by side from the expanded window size class.
+
+## Lining up an app bar
+
+An `AppBar` that paints edge to edge can still line its contents up with the page beneath it. Give it the page's measure and the page's gutter:
+
+```tsx
+<AppBar contentInset="24px" contentMaxInlineSize="960px" headline="Headline" />
+<Container maxInlineSize="960px">{page}</Container>
+```
+
+## Scrolling and collapsing
+
+`AppBar` takes `scrolled` and `collapsed`, and both are controlled, because only the app knows which element scrolls. A pinned flexible bar gives its height back as the page scrolls, becoming the small bar:
+
+```tsx
+<div style={{ overflowAnchor: 'none', overflowY: 'auto' }} onScroll={onScroll}>
+  <AppBar
+    collapsed={scrollTop > 24}
+    contentMaxInlineSize="960px"
+    headline="Headline"
+    scrolled={scrollTop > 0}
+    size="lg"
+  />
+  {page}
+</div>
+```
+
+<Warning>
+The scroll container needs `overflow-anchor: none`. Collapsing hands the page back the height the bar gives up, and a browser answers that by moving the scroll offset the same distance so the content stays put. That is the offset `collapsed` was derived from, so the bar expands again and the two take turns.
+</Warning>
+
+With anchoring off, the content follows the bar's bottom edge up instead of standing still behind it, which is the movement you want anyway.

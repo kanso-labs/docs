@@ -1,0 +1,33 @@
+---
+title: "Home Assistant applications"
+sidebarTitle: "Introduction"
+description: "A media, download and automation stack packaged for Home Assistant."
+icon: "house"
+---
+
+Thirty-two applications that install from the Home Assistant store, run on `aarch64` and `amd64`, and follow their upstream projects' releases without anyone having to remember to check.
+
+Home Assistant renamed add-ons to applications in 2026, and both names still appear in its own tooling. If your Home Assistant says "add-on", these are the same thing.
+
+<CardGroup cols={2}>
+  <Card title="Add the repository" icon="plus" href="/home-assistant/applications/installation">
+    One address, added once, and every application appears in the store.
+  </Card>
+  <Card title="Catalogue" icon="grid-2x2" href="/home-assistant/applications/catalogue">
+    What each application does, and where its web interface is.
+  </Card>
+  <Card title="How they are packaged" icon="package" href="/home-assistant/applications/concepts">
+    Hostnames, updates, backups, storage and the watchdog.
+  </Card>
+  <Card title="Browse the catalogue site" icon="external-link" href="https://home-assistant.kansolabs.org/">
+    home-assistant.kansolabs.org, generated from the applications themselves.
+  </Card>
+</CardGroup>
+
+## Where each application is documented
+
+Every application has its own documentation in its `DOCS.md`, which Home Assistant shows on the application's **Documentation** tab once it is installed. It covers the options, the ports, what is mapped and how it is backed up. This site covers what is true of all of them, and links to each one's page from the [catalogue](/home-assistant/applications/catalogue).
+
+## Source
+
+The packaging lives in [kanso-labs/home-assistant-applications](https://github.com/kanso-labs/home-assistant-applications), and its work is planned on the [Home Assistant Applications project](https://github.com/orgs/kanso-labs/projects/5). Its `AGENTS.md` is the reference for adding or changing an application.

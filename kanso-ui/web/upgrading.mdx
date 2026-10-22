@@ -1,0 +1,32 @@
+---
+title: "Upgrading"
+description: "How to move between 0.x releases on the way to 1.0, and where every breaking change is listed."
+icon: "arrow-up-right-dots"
+---
+
+Kanso UI is below 1.0, so a minor release can break a call site. Every breaking change on the way to 1.0 is listed, with the edit each one asks for, in [`UPGRADING.md`](https://github.com/kanso-labs/kanso-ui/blob/main/UPGRADING.md) in the repository. That file is the one place it is kept, since each breaking pull request adds its line there.
+
+<Steps>
+  <Step title="Find the version you are on">
+    ```bash
+    npm ls @kanso-labs/kanso-ui
+    ```
+  </Step>
+  <Step title="Read UPGRADING.md from the next version down">
+    Find your version in [`UPGRADING.md`](https://github.com/kanso-labs/kanso-ui/blob/main/UPGRADING.md) and work down from the first section after it. Everything above it already applies to you.
+  </Step>
+  <Step title="Check the removed custom properties">
+    A `--kui-*` override for a property that no longer exists raises no error at all; it simply stops applying. They have a section of their own, and are the easiest change to miss.
+  </Step>
+  <Step title="Check the behaviour changes">
+    Some changes compile fine but change what a reader sees or hears. They matter to a test that queries by name or by text.
+  </Step>
+</Steps>
+
+## Pinning the version
+
+Pin the package exactly, `1.2.3` rather than `^1.2.3`, so a minor that renames a prop reaches you as a pull request you can read rather than a broken install. Renovate or Dependabot then opens each bump. The [conventions](/engineering/conventions) explain why every kanso-labs repository pins this way.
+
+## Release notes
+
+Each release's notes are on [GitHub Releases](https://github.com/kanso-labs/kanso-ui/releases). From now on, a breaking release names its migration in the changelog entry itself.

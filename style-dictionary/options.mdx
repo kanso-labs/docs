@@ -1,0 +1,81 @@
+---
+title: "Options"
+description: "Every option the plugin takes, with its default."
+icon: "list"
+---
+
+Every target takes the same options, typed as `UnpluginStyleDictionaryOptions` and exported from every entry point.
+
+```ts
+import type { UnpluginStyleDictionaryOptions } from '@kanso-labs/unplugin-style-dictionary/vite'
+```
+
+A value of the wrong shape for `failOnError`, `logLevel` or `platforms` throws a `TypeError` when the plugin is created, rather than quietly falling back to a default.
+
+<ParamField path="cache" type="boolean" default="true">
+  Whether a configuration whose output is already up to date may skip its compile. See [Caching](/style-dictionary/caching).
+</ParamField>
+
+<ParamField path="config" type="string | string[] | Config | Config[] | false | (context) => Config | Config[] | Promise<Config | Config[]>">
+  The Style Dictionary configuration or configurations to build: a path, paths, an object, objects, or a function handed a `StyleDictionaryConfigContext`. Left out, the root is searched for `sd.config.json`, `config.json`, `sd.config.js` and `sd.config.mjs`. `false` turns that search off. See [Configuration](/style-dictionary/configuration).
+</ParamField>
+
+<ParamField path="errorOverlay" type="boolean" default="true">
+  Whether a failed rebuild is pushed to Vite's error overlay, and dismissed by the next one that succeeds. Does nothing on the other targets or under `vite build`. Independent of `failOnError`.
+</ParamField>
+
+<ParamField path="failOnError" type="'build' | 'serve' | boolean" default="'build'">
+  Whether a failed compile throws rather than only being reported. `'build'` throws on the first compile and reports a failed watch rebuild; `'serve'` is the reverse; `true` throws on both and `false` on neither. A failure is reported either way. See [Logging and errors](/style-dictionary/logging-and-errors#when-a-failure-stops-the-build).
+</ParamField>
+
+<ParamField path="logLevel" type="'silent' | 'warn' | 'info' | 'verbose'">
+  How much the plugin and Style Dictionary say while building. Unset prints the plugin's own lines and leaves the configuration's `log.verbosity` alone. There is no `'error'`, since a failure is reported at every level. See [Logging and errors](/style-dictionary/logging-and-errors).
+</ParamField>
+
+<ParamField path="onBuildEnd" type="(files: string[], durationMs: number) => Promise<void> | void">
+  Called once a build has finished, with every file it declares that is on disk. See [Build hooks](/style-dictionary/build-hooks).
+</ParamField>
+
+<ParamField path="onBuildError" type="(error: unknown) => Promise<void> | void">
+  Called when a build fails, whatever `failOnError` says.
+</ParamField>
+
+<ParamField path="onBuildStart" type="() => Promise<void> | void">
+  Called before a build begins, once per build, watch rebuilds included.
+</ParamField>
+
+<ParamField path="platforms" type="string[] | { build?: string[]; watch?: string[] }">
+  Which platforms to build, by the names the configuration defines. Unset builds every platform. See [Building only some platforms](/style-dictionary/platforms).
+</ParamField>
+
+<ParamField path="report" type="boolean" default="true">
+  Whether the table of generated files with their sizes and gzip sizes is printed. `false` keeps the progress lines and drops only the table, along with the reading and compressing behind it.
+</ParamField>
+
+<ParamField path="root" type="string">
+  The directory a relative `config` path is looked up in and a relative `watch` entry resolves against. Defaults to the host's root: Vite's `root`, webpack's or rspack's `context`, or the working directory for rollup and rolldown. It does not move the paths inside a configuration. See [Path resolution](/style-dictionary/paths).
+</ParamField>
+
+<ParamField path="silent" type="boolean" default="false">
+  An alias for `logLevel: 'silent'`, which wins if both are set. A failed compile is still reported.
+</ParamField>
+
+<ParamField path="watch" type="string | string[]">
+  More files or glob patterns to watch, on top of a `config` given as a path and every file the configurations' `source` and `include` match. A change to one re-imports a configuration module. See [Watching](/style-dictionary/watching#watching-more-files).
+</ParamField>
+
+## StyleDictionaryConfigContext
+
+What the function form of `config` is handed. Only Vite reports all three; where a host does not say, the value is derived rather than guessed.
+
+<ResponseField name="command" type="'build' | 'serve'">
+  `'serve'` under Vite's dev server, from Vite's `config.command`. Every other target builds.
+</ResponseField>
+
+<ResponseField name="mode" type="string">
+  Vite's `config.mode`, or whatever `--mode` named, or webpack's `mode`. Rollup and Rolldown follow `command`: `'development'` serving, `'production'` building.
+</ResponseField>
+
+<ResponseField name="watch" type="boolean">
+  `true` under Vite's dev server, `vite build --watch`, `rollup --watch`, `rolldown.watch()` and `webpack --watch`. Read from the plugin context's `meta.watchMode`, or from `compiler.watchMode` on webpack.
+</ResponseField>

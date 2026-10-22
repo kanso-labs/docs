@@ -1,0 +1,56 @@
+---
+title: "Pinning light or dark"
+sidebarTitle: "Light or dark"
+description: "Follow the reader's OS, or pin a scheme from your app's own theme switch."
+icon: "circle-half-stroke"
+---
+
+The colours follow the reader's OS through `prefers-color-scheme` unless the app says otherwise.
+
+## With colorScheme
+
+An app with a theme switch of its own pins a scheme with `colorScheme`: put `colorScheme.light` or `colorScheme.dark` on the `<html>` element, and remove it to follow the OS again.
+
+The `<html>` element is the place for it, since overlays are portalled to the body and still sit inside it. Either value also works on a smaller element, as a `themeScope` that pins.
+
+<Note>
+Each value is several class names separated by spaces. Set it through `className`, or spread `name.split(' ')` into `classList.add`.
+</Note>
+
+## With a theme provider
+
+A provider that adds one class per scheme throws on a value with spaces in it; next-themes' `value` option is one. With a provider of that kind, render a `ThemeScope` around the app instead and hand it the provider's scheme:
+
+```tsx
+'use client'
+
+import { ThemeProvider, useTheme } from 'next-themes'
+import { useEffect, useState } from 'react'
+import { ThemeScope } from '@kanso-labs/kanso-ui'
+
+function Scheme({ children }: { children: React.ReactNode }) {
+  const { resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+  const scheme =
+    mounted && (resolvedTheme === 'dark' || resolvedTheme === 'light')
+      ? resolvedTheme
+      : undefined
+
+  return <ThemeScope scheme={scheme}>{children}</ThemeScope>
+}
+
+function Providers({ children }: { children: React.ReactNode }) {
+  return (
+    <ThemeProvider attribute="data-theme">
+      <Scheme>{children}</Scheme>
+    </ThemeProvider>
+  )
+}
+```
+
+The server cannot know the stored choice, so the scope takes it only once the page has mounted, which keeps the first client render matching the server's. The first paint follows the OS until then.
+
+## Overrides under a pinned scheme
+
+A `--kui-color-*` override on `:root` still applies under a pinned scheme. To give one scheme a value of its own, key the override on an attribute your switch sets beside the class, since the class names are generated.

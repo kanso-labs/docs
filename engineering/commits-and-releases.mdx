@@ -1,0 +1,67 @@
+---
+title: "Commits and releases"
+description: "How a pull request title becomes a version, a changelog line and a release in every Kanso Labs repository."
+icon: "code-commit"
+---
+
+Every repository releases the same way: pull requests are squash-merged, the pull request title is a Conventional Commit, and [release-please](https://github.com/googleapis/release-please) reads those titles to pick the next version and write the changelog.
+
+## The title is the commit
+
+A pull request is squash-merged with its title as the commit subject and an empty body. That title is the only commit that reaches `main`, and branch commit messages are discarded by the squash.
+
+So the title is the one that has to be right. Write branch commits conventionally anyway, since they are what a reviewer reads while the pull request is open.
+
+```text
+feat(sheet): add Sheet component
+fix(watch): rebuild when a token file is created
+deps: update dependency style-dictionary to v5.2.0
+```
+
+Most repositories check the title with commitlint on every pull request, and again whenever the title is edited. Their `.commitlintrc.json` extends `@commitlint/config-conventional` to admit `deps` as a type and lifts the header's length limit, since a title copied from an issue can run past 100 characters.
+
+<Warning>
+  A title GitHub's **Revert** button writes, `Revert "fix: …"`, carries no type. Retitle it `revert: …` before it merges, or release-please drops the commit and the revert never ships.
+</Warning>
+
+## Which types release
+
+| Title type | Effect |
+| --- | --- |
+| any type marked `!`, such as `feat!` | Breaking change: a major, or a minor while the version is below 1.0.0 |
+| `feat` | Minor release |
+| `fix`, `deps` | Patch release |
+| anything else, such as `chore`, `docs` or `ci` | No release |
+
+A few repositories release on more types than these, and each says so in its `AGENTS.md`. Home Assistant Applications also releases on `perf` and `revert`, and the shared actions on `ci`, because a workflow change there is the product consumers pin.
+
+### Why Renovate writes `deps`
+
+`deps` is not one of the Conventional Commits types. It exists because release-please only opens a release pull request when the notes it would write are not empty, and Renovate's default type, `chore(deps)`, lands in a section release-please hides. An upgrade on its own therefore cut no release, and shipped only when a feature happened to land beside it.
+
+The organization's [shared Renovate preset](/engineering/renovate) types every Renovate commit `deps`, and each repository's `release-please-config.json` gives `deps` a visible **Dependencies** section. The two move together: that section list replaces release-please's defaults wholesale, so a type missing from it is invisible rather than merely unstyled.
+
+## Breaking changes
+
+The squash keeps the title and drops every body, so a `BREAKING CHANGE:` footer written in a branch commit never reaches `main`. A breaking pull request carries its migration in a commit override at the end of its body instead, which release-please parses in place of the squash commit:
+
+```text
+BEGIN_COMMIT_OVERRIDE
+feat(snackbar)!: rename isDismissable to showCloseButton (#1059)
+
+BREAKING CHANGE: Snackbar's `isDismissable` is now `showCloseButton`; rename the prop at each call site.
+END_COMMIT_OVERRIDE
+```
+
+- The footer is the changelog line, so it is a sentence a consumer can act on: the old API, the new one, and the edit to make.
+- Give one `BREAKING CHANGE:` footer per block. Given several, release-please keeps the last.
+- Start with the title and its pull request number, since the override replaces the squash commit whole.
+- Mention the markers nowhere else in the body. release-please splits on the bare word, even inside a code span.
+
+## How a release is cut
+
+Each repository that releases calls the shared [`_release-please.yaml`](/engineering/shared-actions#release-please) workflow. A push to `main` keeps the release pull request current, and the 09:00 UTC scheduled run is the one that merges it, so a day of merges ships as one release. Merging the release pull request tags the version, and a package then publishes through [`_publish-npm.yaml`](/engineering/shared-actions#publish-npm): to npm with trusted publishing and provenance, then to GitHub Packages.
+
+<Note>
+  GitHub starts a scheduled run hours after its cron, not minutes, so the day's release usually lands around midday UTC or later.
+</Note>

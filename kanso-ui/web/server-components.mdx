@@ -1,0 +1,54 @@
+---
+title: "Server components"
+description: "Render Kanso UI from a React server component, such as a page in the Next.js App Router."
+icon: "server"
+---
+
+Every component is a client module, so a server component, such as a page or a layout in the Next.js App Router, imports and renders one directly:
+
+```tsx app/page.tsx
+import { Button } from '@kanso-labs/kanso-ui'
+
+export default function Page() {
+  return <Button href="/start">Start</Button>
+}
+```
+
+Four things follow from where that boundary falls.
+
+## Only serialisable props cross it
+
+A string, a number or a plain object reaches the component from a server component; a function does not. `onPress` and a `render` callback belong in a client component of your own.
+
+A class instance does not cross either, so a `CalendarDate` for a date component is built on the client side too.
+
+## Render a sub-part by its own name
+
+A server component cannot reach into a client module through a property, so `<Dialog.Title>` works only from a client component. Every part is also exported as its component's name followed by the part's: `SheetContent`, `TableRow`, `NavigationTreeItem`.
+
+```tsx app/settings/page.tsx
+import { Button, Sheet, SheetContent, SheetTitle } from '@kanso-labs/kanso-ui'
+
+export default function Page() {
+  return (
+    <Sheet>
+      <Button>Open</Button>
+      <SheetContent>
+        <SheetTitle>Headline</SheetTitle>
+      </SheetContent>
+    </Sheet>
+  )
+}
+```
+
+<Note>
+`List.Item` is exported as `ListRow`, since the standalone `ListItem` already has that name.
+</Note>
+
+## The React Aria utilities are client-only
+
+`I18nProvider`, `useListData`, `parseColor` and the rest of the [re-exported utilities](/kanso-ui/web/react-aria) are client-only. `collectionSizes`, `colorScheme` and `themeScope` are plain values and work on either side.
+
+## Wrap the tree in I18nProvider
+
+A server-rendered app wraps its tree in `I18nProvider` with the request's locale. React Aria reads the browser's locale on the client and has none on the server, so without it a date or a number can render differently on the two and fail hydration.

@@ -1,0 +1,36 @@
+---
+title: "Add the repository"
+description: "Add the repository to Home Assistant, then install applications from the store."
+icon: "plus"
+---
+
+<Steps>
+  <Step title="Add the repository">
+    Open the repository dialog in your Home Assistant with the address already filled in:
+
+    [![Open your Home Assistant instance and show the add application repository dialog with this repository's URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fkanso-labs%2Fhome-assistant-applications)
+
+    Or add it by hand, from **Settings → Apps → App store → ⋮ → Repositories**:
+
+    ```text
+    https://github.com/kanso-labs/home-assistant-applications
+    ```
+  </Step>
+  <Step title="Install an application">
+    The applications now appear in the store, under Kanso Labs. Pick one and select **Install**.
+  </Step>
+  <Step title="Read its Documentation tab">
+    Each application's **Documentation** tab says what to set before its first start, and what it can reach.
+  </Step>
+  <Step title="Start it">
+    Start it, then select **Open Web UI**, or open the port the [catalogue](/home-assistant/applications/catalogue) gives. **Show in sidebar** is off after an install; turn it on from the application's page for one served through ingress.
+  </Step>
+</Steps>
+
+<Warning>
+Add the address exactly as above, with no trailing slash and no `.git`. Home Assistant names the applications on your network after a hash of the address, so another spelling gives them another hostname from the one every application's documentation uses. See [Reaching one application from another](/home-assistant/applications/concepts#reaching-one-application-from-another).
+</Warning>
+
+## Tdarr and Seadexerr
+
+These two publish no image, because their software may not be redistributed. Your Home Assistant builds each from its Dockerfile when you install or update it, which takes longer than an install that pulls an image.
