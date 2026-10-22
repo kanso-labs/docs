@@ -1,0 +1,33 @@
+---
+title: "How Kanso Labs works"
+sidebarTitle: "Principles"
+description: "The three principles every Kanso Labs repository follows."
+icon: "compass"
+---
+
+## Shared documentation lives once
+
+The code of conduct, contributing guide, security policy and issue templates are served from one repository, [kanso-labs/.github](https://github.com/kanso-labs/.github), to every other. A repository carrying its own copy has overridden the default on purpose, and says why.
+
+The same rule shapes this site. A guide is written here once, and the pages that already exist elsewhere, such as each component's Storybook page or a Home Assistant application's own documentation, are linked rather than copied.
+
+<CardGroup cols={2}>
+  <Card title="Contributing" icon="code-pull-request" href="https://kansolabs.org/contributing" />
+  <Card title="Support" icon="life-ring" href="https://kansolabs.org/support" />
+  <Card title="Security policy" icon="shield" href="https://kansolabs.org/security" />
+  <Card title="Code of conduct" icon="handshake" href="https://kansolabs.org/code-of-conduct" />
+</CardGroup>
+
+## Written for coding agents as well as people
+
+`AGENTS.md` is the fullest reference in every repository: the conventions, the reasoning behind them, and the traps that have already caught someone. It is worth reading even if you never run an agent.
+
+These guides cover what a consumer of a project needs. When you are changing the project itself, its `AGENTS.md` is the place to start.
+
+## Nothing is pinned loosely
+
+Dependencies are exact versions, actions are exact tags, and language runtimes are fully specified in `.tool-versions`. Renovate opens every bump.
+
+<Card title="Conventions" icon="list-check" href="/engineering/conventions">
+  The rules every repository restates, with the reasoning behind each.
+</Card>

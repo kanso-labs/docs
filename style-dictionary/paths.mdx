@@ -1,0 +1,54 @@
+---
+title: "Path resolution"
+sidebarTitle: "Paths"
+description: "Which paths follow the host's root, and which follow the working directory."
+icon: "route"
+---
+
+Two kinds of relative path meet in a build, and they resolve against different directories.
+
+| Path | Resolves against |
+| --- | --- |
+| `config`, when it is a path | The host's root |
+| `watch` | The host's root |
+| `source`, `include` and `buildPath` inside a configuration | The working directory |
+
+## The host's root
+
+The root is where the bundler says the project is:
+
+| Target | Root |
+| --- | --- |
+| Vite | `root` in the Vite config |
+| Webpack, Rspack | `context` |
+| Rollup, Rolldown | The working directory |
+
+The plugin's own `root` option overrides it:
+
+```ts
+StyleDictionary({ root: new URL('.', import.meta.url).pathname })
+```
+
+## Inside a configuration
+
+A relative `source`, `include` or `buildPath` is read against the working directory, because that is what Style Dictionary itself does when it globs and when it writes. A configuration therefore behaves exactly as it does under Style Dictionary's own CLI, run from the same directory.
+
+```jsonc sd.config.jsonc
+{
+  // Relative to where the build runs, not to this file.
+  "source": ["tokens/**/*.json"],
+  "platforms": {
+    "css": {
+      "transformGroup": "css",
+      "buildPath": "build/css/",
+      "files": [{ "destination": "variables.css", "format": "css/variables" }]
+    }
+  }
+}
+```
+
+The two only come apart when the host's root is not the working directory, such as a Vite `root` pointing at a subfolder. Absolute paths avoid the question entirely.
+
+<Note>
+A destination is joined onto its `buildPath`, as Style Dictionary joins it, so even an absolute destination lands under the build path.
+</Note>

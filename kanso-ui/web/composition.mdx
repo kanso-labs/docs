@@ -1,0 +1,72 @@
+---
+title: "Composition"
+description: "Render a component as another element, and open and close overlays."
+icon: "puzzle-piece"
+---
+
+## Paragraphs
+
+`Text` renders a `<span>`, which is right for a run of text inside a line and wrong for a paragraph. `block` renders a `<p>` instead:
+
+```tsx
+<Text block>First sentence of the copy.</Text>
+```
+
+It carries no margin, like every other `Text`, so the space between two paragraphs is a decision the container makes rather than the browser.
+
+## Rendering as a different element
+
+`render` swaps the element a component produces, keeping its styling:
+
+```tsx
+<Text render={<h2 />}>Headline</Text>
+<Card render={<a href="/items/1" />}>First item</Card>
+```
+
+`Button` and `IconButton` take `href` instead. Given one, they render an `<a>` with the same styles and ripple, announced as the link it is:
+
+```tsx
+<Button href="/items/1">Label</Button>
+```
+
+<Note>
+On the interactive components, `render` is React Aria's function form, which must return the element the component would have rendered itself. That is why a `Button` becomes a link through `href` rather than through `render`.
+</Note>
+
+## Opening and closing overlays
+
+`Sheet`, `Dialog` and `Popover` are opened by a `Button` or `IconButton` placed directly inside them, and closed by any button inside their content given `slot="close"`:
+
+```tsx
+<Sheet>
+  <Button>Open</Button>
+  <Sheet.Content>
+    <Sheet.Header>
+      <Sheet.Title>Headline</Sheet.Title>
+      <IconButton aria-label="Close" slot="close">
+        <CloseIcon />
+      </IconButton>
+    </Sheet.Header>
+  </Sheet.Content>
+</Sheet>
+```
+
+### An overlay with no trigger
+
+A sheet or dialog nothing on the page opens, such as one a route shows or a menu item raises, has no trigger. Render `Sheet.Content` or `Dialog.Content` on its own and hold the open state through `isOpen` and `onOpenChange`:
+
+```tsx
+<Sheet.Content isOpen={isOpen} onOpenChange={setOpen}>
+  <Sheet.Header>
+    <Sheet.Title>Headline</Sheet.Title>
+  </Sheet.Header>
+</Sheet.Content>
+```
+
+A `slot="close"` button, Escape and the scrim report through `onOpenChange` as they would to a trigger.
+
+<Warning>
+Wrapping it in `Sheet` or `Dialog` with no button inside makes React Aria warn that its press responder found nothing to press.
+</Warning>
+
+An open overlay carries a visually hidden dismiss button for screen readers, named in the reader's language like every other control. See [Localisation](/kanso-ui/web/localisation).

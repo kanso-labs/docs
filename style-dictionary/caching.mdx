@@ -1,0 +1,40 @@
+---
+title: "Caching"
+description: "Skip a compile whose output is already current."
+icon: "database"
+---
+
+With `cache` on, which is the default, the plugin skips a compile when nothing it depends on has changed since the output was written. `buildAllPlatforms` is around 80% of a build, and under Vite it runs inside `server.listen()`, so without this a dev server refused connections for the length of a compile whether or not a token had changed.
+
+## What is compared
+
+A compile is skipped only when all of these match what produced the output on disk:
+
+- **What it reads**: every file its `source` and `include` patterns match, its own config file, and every file named in `watch`. None may have changed since the last compile began reading, so a token saved while a rebuild compiles is rebuilt.
+- **What it writes**: every file the last compile wrote has to exist with the modification time, size and inode that compile recorded. A file another tool rewrote, or replaced by a rename as atomic-save editors and `rsync` do, is compiled over.
+- **The configuration itself**: its contents, the hooks it names as Style Dictionary's registry holds them (each `format`, `filter`, `fileHeader`, transform, transform group, parser and preprocessor), and the Style Dictionary version. A new body registered under a name it uses, or an upgrade, rebuilds even though no file moved.
+
+The record of what each compile read is kept in `node_modules/.cache/unplugin-style-dictionary`, beside the nearest `package.json`, so it survives a restart.
+
+<Note>
+  One rewrite of the output is not seen: one of the same length, made in place, inside the timestamp tick the compile wrote in. That tick is about 15 ms on Windows, and a second or more on HFS+, ext3 and FAT. Set `cache: false` where something rewrites generated output that quickly.
+</Note>
+
+## Never skipped
+
+- **The first compile in a process of a configuration given as an object or a function.** There is no config file to stat, so an edit to the object inside `vite.config.ts` moves no modification time. Within one process the resolved configuration is compared against the one last built.
+- **A platform declaring `actions`.** An action writes what no `destination` names, so a skip would leave its work undone.
+
+## When to turn it off
+
+A hook's own code is compared, but not what it calls from another module: name that module in `watch` and an edit to it rebuilds on the next start. A configuration whose output depends on something that is not a file at all, such as an environment variable or a network request, should pass `cache: false`:
+
+```ts
+StyleDictionary({ config: 'sd.config.js', cache: false })
+```
+
+## One compile per process
+
+Separately from the cache, two plugin instances in one process asking for the same compile at the same moment share it. A single `vitest run` with two test projects and browser mode stands up five Vite servers, each with its own plugin instance, and the ones that start together wait on the compile already running rather than writing the same destinations twice.
+
+The sharing lasts exactly as long as the compile does, and caches nothing for later. It covers instances that resolve to the same root, the same configuration and the same settings. Two that differ in anything that changes what a compile writes or whether it fails, such as `platforms`, `cache`, `watch`, `failOnError` or the build hooks, compile side by side.

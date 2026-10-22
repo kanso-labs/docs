@@ -1,0 +1,42 @@
+---
+title: "Troubleshooting"
+description: "Debug logging, diagnostics, and where to report a problem."
+icon: "wrench"
+---
+
+## Debug logging
+
+Debug logging shows each poll, and why a map was or was not downloaded. Add this to `configuration.yaml` and restart:
+
+```yaml configuration.yaml
+logger:
+  logs:
+    custom_components.robot_vacuum_map: debug
+```
+
+## Diagnostics
+
+The diagnostics download on the integration's device holds the last map, both as downloaded and as parsed, with the credentials, token, address and MAC removed.
+
+- For a vacuum on the Xiaomi map API it also holds the last value read from each MIoT property.
+- For the Xiaomi Robot Vacuum S20+ it holds the last trajectory downloaded, with the account and device IDs taken out of object names.
+
+Attach it to an issue rather than a log you have trimmed by hand.
+
+## Common problems
+
+<AccordionGroup>
+  <Accordion title="Signing in fails">
+    Sign in with the Xiaomi account the Xiaomi Home app uses. A Roborock or Dreame app account is a different account, and Xiaomi's cloud does not know it.
+  </Accordion>
+  <Accordion title="The map is empty">
+    **Is map empty** turns on when the last map came back with nothing in it. Check that the vacuum shows a map in the Xiaomi Home app, press **Force map update**, and turn on debug logging to see what the cloud returned.
+  </Accordion>
+  <Accordion title="The map looks blocky or the path looks thin">
+    The entry may predate 0.8.0 and still draw at a scale of 1. Raise **Image dimensions → Scale**, and **Map elements' sizes** by the same factor. See [Scale](/home-assistant/robot-vacuum-map/configuration#scale).
+  </Accordion>
+</AccordionGroup>
+
+## Reporting a problem
+
+Open an issue on [kanso-labs/home-assistant-robot-vacuum-map](https://github.com/kanso-labs/home-assistant-robot-vacuum-map/issues) with the vacuum's model, the Home Assistant version, the integration's version and the diagnostics download. The organization's [support page](https://kansolabs.org/support) says where else to ask.

@@ -1,0 +1,20 @@
+---
+title: "Supported vacuums"
+description: "Which map API each model is read through."
+icon: "bot"
+---
+
+The map API is chosen from the vacuum's model when it is set up, and can be changed on the setup's last step.
+
+| Map API | Models |
+| --- | --- |
+| Roborock | `roborock.vacuum.*`, `rockrobo.vacuum.*` |
+| Viomi | `viomi.vacuum.*` |
+| Roidmi | `roidmi.vacuum.*`, `zhimi.vacuum.*`, `chuangmi.vacuum.*`, and `viomi.vacuum.v18`, `v23` and `v38` |
+| Dreame | `dreame.vacuum.*` |
+| iJai | `ijai.vacuum.*`, and `xiaomi.vacuum.b106eu`, `c103` and `d106gl` |
+| Xiaomi | Every other `xiaomi.vacuum.*`, among them the Xiaomi Robot Vacuum S20+ (`xiaomi.vacuum.b108gl`) |
+
+The vacuum's model is on its device page in Xiaomi Home, and in the setup's list of vacuums.
+
+Upstream's [README](https://github.com/PiotrMachowski/Home-Assistant-custom-components-Xiaomi-Cloud-Map-Extractor) lists the models it was tested on. The S20+ is the one this copy has been proven on.

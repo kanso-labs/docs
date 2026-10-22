@@ -1,0 +1,67 @@
+---
+title: "How the applications are packaged"
+sidebarTitle: "How they are packaged"
+description: "Hostnames, updates, backups, storage and the watchdog, as every application here handles them."
+icon: "package"
+---
+
+## Reaching one application from another
+
+Applications on the same Home Assistant reach each other over its internal network by hostname, never at `localhost`. Each one's hostname is `2dd33fbd-` followed by its slug: qBittorrent is `http://2dd33fbd-qbittorrent:8080`, NZBGet is `http://2dd33fbd-nzbget:6789`.
+
+`2dd33fbd` is the hash Home Assistant takes of the repository's address as it was added, ignoring case. It holds on every install that added the address [as given](/home-assistant/applications/installation). One added with a trailing slash or `.git` gets another prefix, and an application from another repository has its own. The **Hostname** on an application's **Info** tab is always the right one.
+
+A port only other applications use, such as Byparr's or FlareSolverr's, is left closed on your network. Applications reach it either way; open it under the application's **Network** settings only if something outside Home Assistant needs it.
+
+## Updates
+
+Home Assistant offers an update when an application's version moves, and nothing else here changes one.
+
+<Steps>
+  <Step title="Upstream releases">
+    Renovate watches each upstream project's releases and opens a pull request moving the pinned version.
+  </Step>
+  <Step title="The bump merges">
+    A patch or a minor merges on its own once the image builds. A major, a minor of a project still below 1.0, and a feature release of Authentik wait for a person to read upstream's notes.
+  </Step>
+  <Step title="A release is cut">
+    release-please writes the changelog, with upstream's own notes under **Upstream changes**, and raises the application's version.
+  </Step>
+  <Step title="Home Assistant offers it">
+    The image is published at the new version, and Home Assistant shows the update.
+  </Step>
+</Steps>
+
+An application's version takes the same step upstream's did: a patch of Sonarr is a patch of the Sonarr application, a major is a major. A rebuild of the Home Assistant base image cuts a patch of every application on it, which is how its security fixes arrive.
+
+**A version is published once and never pushed over**, so it is the same image on every install, and a broken release is repaired by releasing a new one.
+
+The arr applications' own updaters are switched off deliberately. They would announce a new version and then refuse to install it, so this packaging is the one route in.
+
+<Note>
+Authentik migrates only from its previous feature release, so its releases ship one feature release at a time. Update it when the update is offered rather than letting several pile up.
+</Note>
+
+## Two architectures, one image
+
+Each application publishes a multi-architecture image, `ghcr.io/kanso-labs/home-assistant-application-` followed by its slug, covering `aarch64` and `amd64`. Tdarr and Seadexerr publish none and are built on your Home Assistant.
+
+## Storage
+
+An application is given write access only where it actually writes. Radarr and Sonarr get `/media` and `/share`, because moving and renaming files is their job. Prowlarr manages indexer definitions and gets neither. Every application's documentation has a Storage table of each path it maps, the access it has and what it holds there.
+
+The download clients write under `/share`, which Radarr and Sonarr see at the same path, so no remote path mapping is needed between them.
+
+## Backups
+
+Most of these keep their settings in SQLite, and some run their own PostgreSQL. Those take **cold** backups: Home Assistant stops the application for the duration of a backup and starts it again after, because a database copied while it is being written produces a backup that will not restore.
+
+An application running its own database is also given two minutes to stop, rather than Home Assistant's ten seconds, so the database can write its shutdown checkpoint.
+
+## Watchdog
+
+Every application with something to probe carries a health check, and **Watchdog** on its **Info** tab acts on it. With Watchdog on, Home Assistant restarts the application when it stops answering, not only when it exits. Watchdog is off by default, so the check restarts nothing until you turn it on. Each application's documentation says what its check asks.
+
+## Versions below 1.0
+
+An application stays below 1.0.0 until it has run on a real Home Assistant. Its documentation says what it still has to prove, in a bold paragraph under its introduction.

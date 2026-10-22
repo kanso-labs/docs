@@ -1,0 +1,56 @@
+---
+title: "Installation"
+description: "Install the plugin beside Style Dictionary 5, on Node 22.12 or newer."
+icon: "download"
+---
+
+<CodeGroup>
+
+```bash npm
+npm install @kanso-labs/unplugin-style-dictionary style-dictionary --save-dev
+```
+
+```bash pnpm
+pnpm add -D @kanso-labs/unplugin-style-dictionary style-dictionary
+```
+
+```bash yarn
+yarn add -D @kanso-labs/unplugin-style-dictionary style-dictionary
+```
+
+</CodeGroup>
+
+## Peer dependencies
+
+Style Dictionary and your bundler are peers, so you choose their versions.
+
+| Peer | Range | Required |
+| --- | --- | --- |
+| `style-dictionary` | `^5.0.0` | Yes |
+| `vite` | `^6`, `^7` or `^8` | Only with the Vite entry |
+| `rolldown`, `rollup`, `webpack` | Any | Only with that entry |
+| `@rspack/core` | Any | Only with the Rspack entry |
+
+<Warning>
+Style Dictionary is the one peer that is not optional. An older major is refused when you install, with npm's `ERESOLVE`, rather than failing later in the build.
+</Warning>
+
+The Rspack peer is `@rspack/core`. The npm package named `rspack` is unrelated.
+
+## Node
+
+**The plugin needs Node 22.12 or newer.** `unplugin` declares `^20.19.0 || >=22.12.0`, and every Style Dictionary 5 release declares `>=22.0.0`. Only 22.12 and newer satisfies both.
+
+One configuration format asks for more: a `.ts` configuration file needs Node 22.18 or newer, where TypeScript type stripping is on by default. Nothing warns about that when you install. See [Configuration](/style-dictionary/configuration#file-formats).
+
+## TypeScript
+
+The subpath entry points need a `moduleResolution` of `bundler`, `node16` or `nodenext`. The deprecated `node10` cannot resolve them.
+
+The package is written in TypeScript and ships its own declarations, so there is nothing else to install.
+
+## Next
+
+<Card title="Add it to your bundler" icon="plug" href="/style-dictionary/bundlers" horizontal>
+  Import the entry point that matches your bundler.
+</Card>

@@ -1,0 +1,56 @@
+---
+title: "Server rendering and tests"
+description: "The one setting Vite, Vitest and Jest need to load a package that imports its own stylesheet."
+icon: "flask"
+---
+
+The main entry imports its own stylesheet, so the package has to reach a bundler wherever it runs. Three tools hand dependencies to Node by default, and each has a setting that sends this package through its bundler instead.
+
+<Tabs>
+  <Tab title="Vite SSR">
+    Vite's server rendering leaves dependencies to Node, in `vite dev` and in a built server alike. The server of a Vite-based framework, such as React Router's framework mode, TanStack Start, Astro or Vike, throws `ERR_UNKNOWN_FILE_EXTENSION` for `dist/styles.css` as it starts.
+
+    Name the package in `ssr.noExternal`, wherever the framework takes its Vite settings (Astro's sit under `vite` in `astro.config.mjs`):
+
+    ```ts vite.config.ts
+    import { defineConfig } from 'vite'
+
+    export default defineConfig({
+      ssr: { noExternal: ['@kanso-labs/kanso-ui'] },
+    })
+    ```
+  </Tab>
+  <Tab title="Vitest">
+    Vitest leaves dependencies to Node too, so the first test that imports a component fails with `Unknown file extension ".css"`. Inline the package:
+
+    ```ts vitest.config.ts
+    import { defineConfig } from 'vitest/config'
+
+    export default defineConfig({
+      test: { server: { deps: { inline: ['@kanso-labs/kanso-ui'] } } },
+    })
+    ```
+  </Tab>
+  <Tab title="Jest">
+    Jest wants a stand-in for the stylesheet, since it has no loader for CSS, and a transform for the package, since the package is ES modules:
+
+    ```js jest.config.cjs
+    module.exports = {
+      moduleNameMapper: { '\\.css$': '<rootDir>/style-stub.cjs' },
+      transformIgnorePatterns: [
+        '^(?!.*/node_modules/@kanso-labs/kanso-ui/).*/node_modules/',
+      ],
+    }
+    ```
+
+    `style-stub.cjs` is `module.exports = {}`, and the transform needs a Babel config that compiles modules to CommonJS, such as `@babel/preset-env`.
+
+    The pattern lets in everything under the package, its own `dist/node_modules` included, which carries StyleX's runtime. The shorter `/node_modules/(?!@kanso-labs/kanso-ui/)` matches again at that second `node_modules` and leaves the runtime untransformed.
+
+    On Node 24.9 or newer, Jest 30 can load the package as ES modules instead, under `NODE_OPTIONS=--experimental-vm-modules`, and then needs the `moduleNameMapper` alone.
+  </Tab>
+</Tabs>
+
+<Note>
+Importing `@kanso-labs/kanso-ui/styles.css` yourself does not help. An environment that cannot import CSS from JavaScript cannot load the main entry at all, whatever else it loads.
+</Note>

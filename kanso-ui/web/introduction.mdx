@@ -1,0 +1,59 @@
+---
+title: "Kanso UI"
+sidebarTitle: "Introduction"
+description: "A React component library on React Aria Components, styled with StyleX, that follows Material Design."
+icon: "book-open"
+---
+
+Kanso UI is a React component library built on [React Aria Components](https://react-aria.adobe.com) and styled with [StyleX](https://stylexjs.com). Its design tokens come from a single [W3C Design Tokens (DTCG)](https://design-tokens.github.io/community-group/format/) file, compiled with [Style Dictionary](https://styledictionary.com), and every component follows its Material Design spec page.
+
+Every token carries a default, light and dark, so a component renders correctly the moment it is imported.
+
+```bash
+npm install @kanso-labs/kanso-ui
+```
+
+```tsx
+import { Button } from '@kanso-labs/kanso-ui'
+
+export function Example() {
+  return <Button>Click me</Button>
+}
+```
+
+## Where to look
+
+These guides cover what sits around the components: installing the package, fitting its CSS into yours, rendering on a server, and theming. The components themselves are documented in Storybook, which is published from the latest release.
+
+<CardGroup cols={2}>
+  <Card title="Storybook" icon="swatchbook" href="https://kanso-ui.kansolabs.org/">
+    Every component, its props and its states, in light and dark.
+  </Card>
+  <Card title="Installation and usage" icon="download" href="/kanso-ui/web/installation">
+    What the package needs from your bundler, and what it does on its own.
+  </Card>
+  <Card title="Theming" icon="palette" href="/kanso-ui/web/theming/overview">
+    Override the `--kui-*` tokens for a page, or for part of one.
+  </Card>
+  <Card title="Server rendering" icon="server" href="/kanso-ui/web/server-components">
+    Server components, server renderers and test runners.
+  </Card>
+</CardGroup>
+
+## What the package includes
+
+- **Components** built on React Aria Components, each drawn to its Material Design spec: sizes, shapes, type and colour roles, in every state the spec lists.
+- **The React Aria utilities** an app needs around them, re-exported so you never install a second copy. See [React Aria and dates](/kanso-ui/web/react-aria).
+- **Layout primitives**: `Container`, `Stack`, `Feed`, `ListDetail` and `SupportingPane`. See [Layout](/kanso-ui/web/layout).
+- **Design tokens** as `--kui-*` custom properties, published as `tokens.css` and as the DTCG source `tokens.json`.
+
+The package ships no icons and no typefaces; those come from your app. See [Icons](/kanso-ui/web/icons).
+
+## Related packages
+
+- [Kanso UI for React Native](/kanso-ui/react-native/introduction) draws the same components, props and tokens with React Native's core components.
+- [Kanso UI Core](/kanso-ui/core/introduction) is the design data both libraries build from.
+
+<Note>
+Coming from an earlier 0.x release? [Upgrading](/kanso-ui/web/upgrading) lists every breaking change on the way to 1.0.
+</Note>

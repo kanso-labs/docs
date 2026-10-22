@@ -1,54 +1,15 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mintlify Starter Kit",
+  "background": {
+    "color": {
+      "dark": "#121212",
+      "light": "#fafafa"
+    }
+  },
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
-  },
-  "favicon": "/favicon.svg",
-  "navigation": {
-    "pages": [
-      {
-        "group": "Getting Started",
-        "pages": [
-          "index",
-          "quickstart"
-        ]
-      }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
-  },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:support@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://app.mintlify.com"
-    }
+    "dark": "#1a1a1a",
+    "light": "#ececec",
+    "primary": "#1a1a1a"
   },
   "contextual": {
     "options": [
@@ -62,11 +23,190 @@
       "vscode"
     ]
   },
+  "description": "Guides for Kanso Labs' open-source projects: the Kanso UI design system, the Style Dictionary plugin, Home Assistant packaging and the conventions behind them.",
+  "favicon": "/favicon.png",
+  "fonts": {
+    "family": "Roboto Flex",
+    "heading": {
+      "family": "Roboto Serif",
+      "weight": 400
+    }
+  },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "github": "https://github.com/kanso-labs",
+      "website": "https://kansolabs.org"
     }
-  }
+  },
+  "logo": {
+    "dark": "/logo/dark.png",
+    "href": "https://docs.kansolabs.org",
+    "light": "/logo/light.png"
+  },
+  "name": "Kanso Labs",
+  "navbar": {
+    "links": [
+      {
+        "href": "https://kansolabs.org",
+        "label": "kansolabs.org"
+      }
+    ],
+    "primary": {
+      "href": "https://github.com/kanso-labs",
+      "type": "github"
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "groups": [
+          {
+            "group": "Get started",
+            "pages": [
+              "index",
+              "projects",
+              "principles"
+            ]
+          }
+        ],
+        "tab": "Home"
+      },
+      {
+        "groups": [
+          {
+            "group": "Web",
+            "icon": "browser",
+            "pages": [
+              "kanso-ui/web/introduction",
+              "kanso-ui/web/installation",
+              "kanso-ui/web/css-layers",
+              "kanso-ui/web/react-aria",
+              "kanso-ui/web/localisation",
+              "kanso-ui/web/layout",
+              "kanso-ui/web/composition",
+              "kanso-ui/web/icons",
+              "kanso-ui/web/server-components",
+              "kanso-ui/web/ssr-and-tests",
+              {
+                "group": "Theming",
+                "icon": "palette",
+                "pages": [
+                  "kanso-ui/web/theming/overview",
+                  "kanso-ui/web/theming/material-theme-builder",
+                  "kanso-ui/web/theming/theme-scope",
+                  "kanso-ui/web/theming/light-and-dark"
+                ]
+              },
+              "kanso-ui/web/upgrading"
+            ]
+          },
+          {
+            "group": "React Native",
+            "icon": "mobile",
+            "pages": [
+              "kanso-ui/react-native/introduction",
+              "kanso-ui/react-native/installation",
+              "kanso-ui/react-native/theming",
+              "kanso-ui/react-native/routing-and-localisation"
+            ]
+          },
+          {
+            "group": "Core",
+            "icon": "cube",
+            "pages": [
+              "kanso-ui/core/introduction",
+              "kanso-ui/core/tokens",
+              "kanso-ui/core/glyphs-and-schemes"
+            ]
+          }
+        ],
+        "tab": "Kanso UI"
+      },
+      {
+        "groups": [
+          {
+            "group": "Get started",
+            "icon": "rocket",
+            "pages": [
+              "style-dictionary/introduction",
+              "style-dictionary/installation",
+              "style-dictionary/bundlers"
+            ]
+          },
+          {
+            "group": "Guides",
+            "icon": "book-open",
+            "pages": [
+              "style-dictionary/configuration",
+              "style-dictionary/watching",
+              "style-dictionary/platforms",
+              "style-dictionary/caching",
+              "style-dictionary/paths",
+              "style-dictionary/logging-and-errors",
+              "style-dictionary/build-hooks"
+            ]
+          },
+          {
+            "group": "Reference",
+            "icon": "list",
+            "pages": [
+              "style-dictionary/options",
+              "style-dictionary/public-api",
+              "style-dictionary/migrating"
+            ]
+          }
+        ],
+        "tab": "Style Dictionary plugin"
+      },
+      {
+        "groups": [
+          {
+            "group": "Applications",
+            "icon": "boxes",
+            "pages": [
+              "home-assistant/applications/introduction",
+              "home-assistant/applications/installation",
+              "home-assistant/applications/catalogue",
+              "home-assistant/applications/concepts"
+            ]
+          },
+          {
+            "group": "Robot Vacuum Map",
+            "icon": "map",
+            "pages": [
+              "home-assistant/robot-vacuum-map/introduction",
+              "home-assistant/robot-vacuum-map/installation",
+              "home-assistant/robot-vacuum-map/configuration",
+              "home-assistant/robot-vacuum-map/entities",
+              "home-assistant/robot-vacuum-map/supported-vacuums",
+              "home-assistant/robot-vacuum-map/troubleshooting"
+            ]
+          }
+        ],
+        "tab": "Home Assistant"
+      },
+      {
+        "groups": [
+          {
+            "group": "How we work",
+            "icon": "compass",
+            "pages": [
+              "engineering/conventions",
+              "engineering/commits-and-releases"
+            ]
+          },
+          {
+            "group": "Shared CI",
+            "icon": "workflow",
+            "pages": [
+              "engineering/shared-actions",
+              "engineering/renovate"
+            ]
+          }
+        ],
+        "tab": "Engineering"
+      }
+    ]
+  },
+  "theme": "willow"
 }

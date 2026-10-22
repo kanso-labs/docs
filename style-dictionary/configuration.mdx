@@ -1,0 +1,149 @@
+---
+title: "Configuration"
+description: "Point the plugin at a file, hand it an object, or return one from a function."
+icon: "sliders"
+---
+
+The `config` option says which Style Dictionary configuration to build. It takes a path, an array of paths, a configuration object, an array of objects, or a function returning any of those. Leave it out and the plugin looks for a file.
+
+## Finding a config file
+
+With no `config`, the root is searched for these names, in order:
+
+1. `sd.config.json`
+2. `config.json`
+3. `sd.config.js`
+4. `sd.config.mjs`
+
+The first one that looks like a Style Dictionary configuration wins: it has to declare at least one of `platforms`, `source`, `include` or `tokens`. A candidate that fails that check is skipped rather than adopted, since `config.json` is a common name for something else entirely. The plugin prints the path it picked and any file it skipped on the way, and reports the skipped files as an error when nothing is adopted.
+
+A configuration problem, such as nothing found or a named file that is missing or will not parse, is said once rather than on every rebuild.
+
+<Warning>
+Two of the four names are modules, and reading a module runs it. A root `sd.config.js` is imported when it is first read and again whenever it changes, before the check can look at what it returned. If you name your configuration yourself, or have none, turn discovery off:
+
+```ts
+StyleDictionary({ config: false })
+```
+
+Nothing is then looked for, watched or compiled.
+</Warning>
+
+A configuration you name yourself is never second-guessed by the check: it goes straight to Style Dictionary.
+
+## File formats
+
+A `config` path may be `.json`, `.json5`, `.jsonc`, `.js`, `.mjs` or `.ts`. The JSON family is parsed as JSON5, as Style Dictionary does, so comments and trailing commas work in a `.json` file too.
+
+| Format | Note |
+| --- | --- |
+| `.json`, `.json5`, `.jsonc` | Parsed as JSON5 |
+| `.js`, `.mjs` | Imported, so the module runs |
+| `.ts` | Needs Node 22.18 or newer, for type stripping. Below that the build fails with `Could not import TypeScript file`. |
+| `.cjs` | Not supported. Style Dictionary parses it as JSON5. Rename it to `.js` in a CommonJS package, or pass an object. |
+
+## Several configurations
+
+For several themes or brands, pass an array of paths or objects:
+
+```ts
+StyleDictionary({
+  config: [
+    'tokens/config/sd-base.config.json',
+    'tokens/config/sd-theme.config.json',
+  ],
+})
+```
+
+They compile one after another on purpose, so two of them can write to the same destination. The platforms inside one configuration are built concurrently by Style Dictionary itself.
+
+## A configuration object
+
+```ts
+StyleDictionary({
+  config: {
+    source: ['tokens/**/*.json'],
+    platforms: {
+      css: {
+        transformGroup: 'css',
+        buildPath: 'build/css/',
+        files: [{ destination: 'variables.css', format: 'css/variables' }],
+      },
+    },
+  },
+})
+```
+
+## A function
+
+`config` can be a function, which runs before every build, watch rebuilds included. It is handed what the host is doing, so the configuration can depend on it:
+
+```ts
+styleDictionaryPlugin({
+  config: ({ command, mode, watch }) => ({
+    source: ['tokens/**/*.json'],
+    platforms: {
+      css: {
+        transformGroup: 'css',
+        buildPath: 'build/',
+        files: [{ destination: 'vars.css', format: 'css/variables' }],
+      },
+      // A native toolchain is worth a real build, not every rebuild.
+      ...(command === 'build' && !watch ? { ios: iosPlatform(mode) } : {}),
+    },
+  }),
+})
+```
+
+<ResponseField name="command" type="'build' | 'serve'">
+  `'serve'` only under Vite's dev server. Every other target builds.
+</ResponseField>
+<ResponseField name="mode" type="string">
+  Vite's `config.mode` or webpack's `mode`. Rollup and Rolldown have none, so it follows `command`: `'development'` when serving, `'production'` when building.
+</ResponseField>
+<ResponseField name="watch" type="boolean">
+  Whether the host will keep rebuilding. Read from the host rather than inferred from `command`, because `rollup --watch` both watches and builds.
+</ResponseField>
+
+A function that takes no arguments is still valid. The function runs for builds and nothing else: a change to an unrelated file does not reach it.
+
+## Custom formats
+
+The function form is where to register a custom format, transform or other `register*` hook before the configuration names it. Re-registering the same name on every rebuild is safe, since Style Dictionary replaces the existing one.
+
+```ts vite.config.ts
+// Named styleDictionaryPlugin so it does not collide with the
+// StyleDictionary class from style-dictionary itself.
+import styleDictionaryPlugin from '@kanso-labs/unplugin-style-dictionary/vite'
+import StyleDictionary from 'style-dictionary'
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  plugins: [
+    styleDictionaryPlugin({
+      config: () => {
+        StyleDictionary.registerFormat({
+          name: 'custom/my-format',
+          format: ({ dictionary }) =>
+            dictionary.allTokens
+              .map((token) => `${token.name}: ${token.value}`)
+              .join('\n'),
+        })
+
+        return {
+          source: ['tokens/**/*.json'],
+          platforms: {
+            custom: {
+              transformGroup: 'css',
+              buildPath: 'build/',
+              files: [{ destination: 'tokens.txt', format: 'custom/my-format' }],
+            },
+          },
+        }
+      },
+    }),
+  ],
+})
+```
+
+The [cache](/style-dictionary/caching) compares the hooks a configuration names by their registered body, so editing that format rebuilds even though no file moved.

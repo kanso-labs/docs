@@ -1,0 +1,67 @@
+---
+title: "Logging and errors"
+description: "How much the plugin says, where it says it, and when a failure stops the build."
+icon: "triangle-alert"
+---
+
+## How much is said
+
+`logLevel` sets how much the plugin prints, and passes the matching verbosity to Style Dictionary.
+
+| `logLevel` | The plugin's own lines | Style Dictionary |
+| --- | --- | --- |
+| `silent` | Nothing | Nothing |
+| `warn` | Nothing | Its warnings |
+| `info` | Progress lines and the size table | Its warnings |
+| `verbose` | Progress lines and the size table | Its warnings, naming what each one is about |
+| Unset | Progress lines and the size table | Whatever the configuration's `log.verbosity` says |
+
+`warn` is the one worth knowing: Style Dictionary's warnings, such as a name collision or a reference it could not resolve, without the plugin's own lines. Style Dictionary's platform names and the success mark for each file it wrote are its own console calls, so they stay at every level but `silent`. `log.warnings` is never touched, so a configuration that turns warnings into errors keeps doing so. `silent: true` is an alias for `logLevel: 'silent'`. Any other value, `'error'` included, throws a `TypeError` when the plugin is created.
+
+<Note>
+A failed compile is reported at every level, `silent` included. A build the host stops for has to say why.
+</Note>
+
+`report`, on by default, prints a table of each generated file with its size and gzip size. Measured at 4.5 ms for 515 kB of output.
+
+## Where it goes
+
+The plugin hands its lines to the bundler, so they land wherever the bundler's own output does and its own log level applies.
+
+| Target | Progress lines | A failed compile |
+| --- | --- | --- |
+| Vite | `config.logger.info` | `config.logger.error` |
+| Rollup, Rolldown | The plugin context's log | The warning channel |
+| Webpack, Rspack | The console | `compilation.warnings` |
+| No host | The console | The console |
+
+A failure goes on rollup's and webpack's warning channel rather than their error channel on purpose: rollup's `this.error` aborts the bundle, which is `failOnError`'s decision to make, not the logger's, and `compilation.errors` would fail a build `failOnError: false` meant to pass. Under webpack the failure therefore reaches `stats.toJson()`, and anything reading it.
+
+Your bundler's own log level applies too: `vite --logLevel silent` silences the plugin's lines along with Vite's.
+
+<Note>
+Rspack wraps every diagnostic in a frame of its own and colours it whenever it thinks colour is wanted, which setting `CI` is enough to do. Strip ANSI escapes from rspack's `stats` before handing that text to anything expecting plain output.
+</Note>
+
+Colour follows the usual signals, in order: `NO_COLOR` turns it off, then `FORCE_COLOR` decides, then `TERM=dumb` turns it off, then whether the stream is a terminal. stdout and stderr are asked separately.
+
+## When a failure stops the build
+
+<ParamField path="failOnError" type="'build' | 'serve' | boolean" default="'build'">
+  - `'build'`: a failed compile stops a one-shot build, and a failed watch rebuild is only reported, so a dev server survives a half-typed token file.
+  - `'serve'`: the reverse. A failed watch rebuild is thrown to whatever awaited it, which under `rollup --watch` is the host. Vite's dev server has no build to fail, so there it is reported and the server keeps serving.
+  - `true`: both.
+  - `false`: neither. The failure is reported and the last good output stays.
+</ParamField>
+
+Any other value throws a `TypeError` when the plugin is created, the string `'true'` from an environment variable included.
+
+**An empty token set is a failure.** A `source` that matches no files would otherwise succeed and write a destination with no tokens in it. The check runs before anything is written, so the previous output survives. A configuration that supplies `tokens` inline and no `source` is fine.
+
+## The error overlay
+
+<ParamField path="errorOverlay" type="boolean" default="true">
+  Under Vite's dev server, a failed rebuild shows Vite's error overlay in the browser, and the next successful one takes it down without reloading the page.
+</ParamField>
+
+The overlay is independent of `failOnError`: under the default, a failed dev-server rebuild stops nothing and still shows the overlay, which is the case it exists for.

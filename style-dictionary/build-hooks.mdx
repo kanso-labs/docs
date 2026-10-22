@@ -1,0 +1,37 @@
+---
+title: "Build hooks"
+description: "Run your own code when a compile starts, ends or fails."
+icon: "webhook"
+---
+
+Three callbacks tell you what a compile did.
+
+```ts
+StyleDictionary({
+  config: 'sd.config.json',
+  onBuildStart: () => console.time('tokens'),
+  onBuildEnd: (files, durationMs) => {
+    console.timeEnd('tokens')
+    console.log(`${files.length} files in ${durationMs} ms`)
+  },
+  onBuildError: (error) => notify(error.message),
+})
+```
+
+<ResponseField name="onBuildStart" type="() => Promise<void> | void">
+  Called before a build begins, once per build. A watch rebuild is a build, so it fires again for each one.
+</ResponseField>
+
+<ResponseField name="onBuildEnd" type="(files: string[], durationMs: number) => Promise<void> | void">
+  Called once a build has finished. `files` is every file the build declares that is on disk, as absolute, platform-native paths, sorted. It is what the build declares rather than what it wrote this time, so a configuration the [cache](/style-dictionary/caching) skipped contributes its files too, and a post-processing step sees the whole set on a rebuild that changed one file. A declared file Style Dictionary declined to write, such as one whose filter matched no tokens, is left out.
+</ResponseField>
+
+<ResponseField name="onBuildError" type="(error: unknown) => Promise<void> | void">
+  Called when a build fails, whatever `failOnError` is set to, and before that option decides whether to rethrow. A failure inside Style Dictionary arrives wrapped in an `Error` whose message names the configuration it came from, with Style Dictionary's own error as its `cause`. A failed rebuild also names the last file to change before it.
+</ResponseField>
+
+## What they cannot do
+
+A hook is called and not awaited, so an `async` hook runs beside the build rather than holding it up. A hook that throws is reported, and a promise that rejects is caught and reported rather than reaching the host as an unhandled rejection. Neither fails the build: deciding that is [`failOnError`](/style-dictionary/logging-and-errors#when-a-failure-stops-the-build)'s job.
+
+The return type is `Promise<void> | void` so an `async` hook type-checks and passes type-aware lint rules such as `no-misused-promises`, not because its promise is waited on.

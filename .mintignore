@@ -5,3 +5,7 @@
 # Draft content
 drafts/
 *.draft.mdx
+
+# Guidance for coding agents, which the site should not publish
+AGENTS.md
+CLAUDE.md

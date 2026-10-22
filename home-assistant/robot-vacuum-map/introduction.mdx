@@ -1,0 +1,34 @@
+---
+title: "Robot Vacuum Map"
+sidebarTitle: "Introduction"
+description: "A live map of your robot vacuum in Home Assistant, from Xiaomi's cloud, with no rooting."
+icon: "map"
+---
+
+Robot Vacuum Map is a Home Assistant integration, installed through HACS, that draws a live map of your robot vacuum from Xiaomi's cloud. It reads Xiaomi, Roborock, Dreame, Viomi, Roidmi and iJai vacuums, and needs no rooting.
+
+<CardGroup cols={2}>
+  <img src="https://raw.githubusercontent.com/kanso-labs/home-assistant-robot-vacuum-map/main/images/map_no_rooms.png" alt="A map drawn without rooms" />
+  <img src="https://raw.githubusercontent.com/kanso-labs/home-assistant-robot-vacuum-map/main/images/map_rooms.png" alt="The same map with its rooms coloured" />
+</CardGroup>
+
+It is a kanso-labs copy of Piotr Machowski's [Xiaomi Cloud Map Extractor](https://github.com/PiotrMachowski/Home-Assistant-custom-components-Xiaomi-Cloud-Map-Extractor), with a domain of its own, `robot_vacuum_map`, so the two can be installed side by side. The copy exists so that the Xiaomi Robot Vacuum S20+ is drawn live.
+
+<CardGroup cols={2}>
+  <Card title="Install" icon="download" href="/home-assistant/robot-vacuum-map/installation">
+    Through HACS, on Home Assistant 2026.3 or later.
+  </Card>
+  <Card title="Set it up" icon="settings" href="/home-assistant/robot-vacuum-map/configuration">
+    Sign in to Xiaomi, pick the vacuum, then adjust the map.
+  </Card>
+  <Card title="Entities" icon="list" href="/home-assistant/robot-vacuum-map/entities">
+    The map, its controls and a sensor for each element.
+  </Card>
+  <Card title="Supported vacuums" icon="bot" href="/home-assistant/robot-vacuum-map/supported-vacuums">
+    Which map API a model is read through.
+  </Card>
+</CardGroup>
+
+## Source
+
+The integration lives in [kanso-labs/home-assistant-robot-vacuum-map](https://github.com/kanso-labs/home-assistant-robot-vacuum-map), and its work is planned on the [Robot Vacuum Map project](https://github.com/orgs/kanso-labs/projects/7). It is MIT licensed, keeping Piotr Machowski's copyright notice beside Kanso Labs', and it credits almirus for the S20+ work in [upstream pull request #750](https://github.com/PiotrMachowski/Home-Assistant-custom-components-Xiaomi-Cloud-Map-Extractor/pull/750).

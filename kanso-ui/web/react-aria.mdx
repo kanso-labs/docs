@@ -1,0 +1,61 @@
+---
+title: "React Aria and dates"
+description: "The React Aria utilities and date values Kanso UI re-exports, and why a second copy breaks the components."
+icon: "universal-access"
+---
+
+The components are built on [React Aria Components](https://react-aria.adobe.com), and the utilities an app needs around them come from this package too.
+
+```tsx
+import { I18nProvider, useListData } from '@kanso-labs/kanso-ui'
+```
+
+<Warning>
+**Do not install `react-aria-components` alongside this package.** A second copy carries a second set of contexts, and the two never meet: a `Button` placed inside a `Sheet` opens nothing when the trigger context it looks for belongs to your copy. Everything below is the same object the components use, which is what keeps them talking to each other.
+</Warning>
+
+## What is re-exported
+
+| Kind | Names |
+| --- | --- |
+| Providers | `I18nProvider`, `RouterProvider` |
+| Building blocks | `Collection`, `VisuallyHidden`, `Focusable`, `Pressable`, `SharedElement`, `SharedElementTransition` |
+| Virtualization | `Virtualizer` and its layouts, `collectionSizes` |
+| Data hooks | `useFilter`, `useListData`, `useTreeData`, `useAsyncList` |
+| Drag and drop | `useDragAndDrop`, `useDrag`, `useDrop`, the drop item guards, `DIRECTORY_DRAG_TYPE` |
+| Locale and colour | `useLocale`, `parseColor`, `getColorChannels` |
+| Types | `TokenFieldValue`, `Key`, `Selection`, `SortDescriptor`, `PressEvent`, `HoverEvent`, `KeyboardEvent`, `FocusableElement` |
+
+### Keyboard and hover events
+
+`KeyboardEvent` is React Aria's: React's own with `continuePropagation()` added. It is what `onKeyDown` and `onKeyUp` take on the fields and controls React Aria handles the keyboard for, such as `TextField`, `Select`, `Checkbox`, `Switch` and `Chip`.
+
+`Button`, `IconButton`, `Fab` and `Link` hand those handlers React's own event, as does a component that renders a plain element, such as `Card`. `onHoverStart` and `onHoverEnd` take `HoverEvent` wherever a component has them.
+
+## Virtualized collections
+
+A virtualized collection needs to be told how tall its rows are. `collectionSizes` holds what the collections here measure, such as `listRow`, `menuRow` and `tableRow`, so a `Virtualizer`'s `layoutOptions` take a number the components agree with rather than one guessed at the call site.
+
+The collection inside a `Virtualizer` is its own scroll container, so give the `List` itself its height and `overflow-y: auto`, through `className` or `style`.
+
+<Note>
+React Aria sizes a Page Up or Page Down from the collection's own box. A collection left to grow to its full height inside a scrolling wrapper is one page long, and the keys jump from one end of it to the other.
+</Note>
+
+## Date values
+
+The date components, `DatePicker`, `DateField`, `Calendar`, `RangeCalendar`, `DateRangePicker` and `TimeField`, take the values [`@internationalized/date`](https://react-spectrum.adobe.com/internationalized/date/) builds. This package publishes them at its own `./date` subpath:
+
+```ts
+import {
+  CalendarDate,
+  getLocalTimeZone,
+  today,
+} from '@kanso-labs/kanso-ui/date'
+```
+
+<Warning>
+**Do not install `@internationalized/date` alongside this package.** A `CalendarDate` built from a second copy is a different class, and a `Calendar`'s `value` rejects it.
+</Warning>
+
+The dates are a subpath rather than part of the main entry, so an app with no date component pays nothing for them. It is also the one entry plain Node can load.

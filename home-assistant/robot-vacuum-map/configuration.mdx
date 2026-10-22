@@ -1,0 +1,51 @@
+---
+title: "Configuration"
+description: "Sign in to Xiaomi, choose the vacuum, then adjust how the map is drawn."
+icon: "settings"
+---
+
+[![Open your Home Assistant instance and start setting up Robot Vacuum Map.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=robot_vacuum_map)
+
+## Setting it up
+
+<Steps>
+  <Step title="Sign in to Xiaomi">
+    Use the Xiaomi account the Xiaomi Home app uses, not a Roborock or Dreame app account. Sign in with the username and password, or with a QR code or login link. Xiaomi may ask for a captcha or a two-factor code, and the setup asks for each in turn.
+  </Step>
+  <Step title="Choose the vacuum">
+    Asked only when the account has more than one.
+  </Step>
+  <Step title="Confirm the details">
+    The vacuum's local address and its token come from the cloud, and the map API is detected from the model. See [Supported vacuums](/home-assistant/robot-vacuum-map/supported-vacuums) for how a model maps to an API.
+  </Step>
+</Steps>
+
+When the Xiaomi session expires, Home Assistant asks you to sign in again from the integration's card rather than removing it.
+
+## Adjusting the map
+
+The integration's **Configure** button opens five sections:
+
+| Section | What it sets |
+| --- | --- |
+| **Image dimensions** | Scale, rotation, and trimming from each edge |
+| **Image colors** | The colour and transparency of each element: carpets, the charger, cleaned area, paths, walls and the rest |
+| **Room colors** | A colour for each room, by its ID |
+| **Drawn map elements** | Which elements are drawn at all |
+| **Map elements' sizes** | The radius of the charger, the vacuum and obstacles, and the width of the vacuum and mop paths |
+
+### Scale
+
+A new entry draws the map four times the size of the cloud map's grid, with the elements' sizes multiplied to match.
+
+<Note>
+An entry set up before 0.8.0 keeps drawing at its old scale of 1 until you raise **Image dimensions → Scale**. Raise **Map elements' sizes** by the same factor, so that the path and the robot keep their size against the map.
+</Note>
+
+Walls and rooms cannot get finer than the grid itself, which on the Xiaomi Robot Vacuum S20+ is 5 cm to a cell.
+
+## With Xiaomi Home
+
+When Xiaomi's own integration, Xiaomi Home, also has the S20+, the robot moves on the map each time Xiaomi Home reports its position, about every 2 seconds, and its path follows it. The map is drawn again from its last download, so this asks nothing more of Xiaomi's cloud.
+
+Robot Vacuum Map reads Xiaomi Home's entities through Home Assistant and never imports its code, so its map device sits beside Xiaomi Home's device rather than on it.

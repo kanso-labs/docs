@@ -1,0 +1,65 @@
+---
+title: "Watching and rebuilds"
+sidebarTitle: "Watching"
+description: "What the plugin watches, and what a token change triggers under each bundler."
+icon: "eye"
+---
+
+The plugin reads the `source` and `include` patterns of every configuration and registers the files they match with the host bundler. A configuration given as a path is watched too. What a change then triggers is the host's to decide, so it depends on the target.
+
+| Target | Compiles before the build | Rebuilds on a token change | Safe from rebuild loops |
+| --- | --- | --- | --- |
+| Vite | Yes | Under the dev server | Yes |
+| Vite, `build --watch` | Yes | On Vite 6, 7 and 8 | Yes |
+| Rollup | Yes | Under `rollup --watch` | Yes |
+| Webpack | Yes | Under `webpack --watch` | Yes |
+| Rspack | Yes | Under `rspack --watch` | Yes |
+| Rolldown | Yes | Under `rolldown.watch()` | Yes |
+
+A one-shot build, such as `tsdown` with no `--watch`, compiles once in `buildStart` and does not rebuild. That is expected.
+
+## Patterns
+
+Patterns and literal paths behave the same wherever rebuilds happen. A `source` of `tokens/**/*.json` matches a file directly in `tokens/` as well as one in a subdirectory. The directory a pattern starts from is registered too, so a token file created after the watcher started is picked up.
+
+## Watching more files
+
+`watch` adds files or patterns on top of what the configurations name:
+
+```ts
+StyleDictionary({
+  config: 'sd.config.js',
+  watch: ['tokens/brand.yaml', 'scripts/formats/**/*.js'],
+})
+```
+
+A relative entry here resolves against the plugin's `root`, as `config` does, not against the working directory `source` uses. See [Paths](/style-dictionary/paths).
+
+<Note>
+A configuration module is imported again when a file named in `watch` changes, so data it reads as it loads is picked up. A module the configuration itself imports is evaluated once per process: naming it in `watch` buys a rebuild, not a re-read.
+</Note>
+
+## Token packages in a workspace
+
+A token package resolved through `node_modules`, such as `app/node_modules/@acme/tokens` linked to `packages/tokens`, is watched as well.
+
+- **Vite's dev server** ignores `node_modules` by default. The plugin un-ignores exactly the token files it registers, so the rest of the dependency tree stays out of the watcher. A negation you added yourself keeps working, since the plugin appends to your list.
+- **`vite build --watch`** gets the same negations on Vite 6 and 7. Vite 8 builds on Rolldown, which needs none.
+- **Windows** cannot be made to deliver those events through Vite's watcher, so the plugin watches those directories itself, on every platform.
+- **Rolldown on macOS** drops events for a path registered through a symbolic link. The plugin registers each such path by its realpath as well, and maps the event back to the spelling your patterns use.
+
+## No rebuild loops
+
+Your code imports the generated file, so every regenerate is itself a change the host reacts to. The plugin keeps that from looping three ways:
+
+1. It subtracts its own output from what it treats as a token source, even when the `buildPath` sits inside a `source` directory.
+2. It skips compiling again when a watch rebuild re-enters `buildStart`.
+3. It skips the write entirely when a rebuild renders the bytes already on disk, so nothing fires a file event.
+
+## Bursts and overlap
+
+A burst of changes, such as an editor's save-all or a checkout, is collapsed into one rebuild. A change arriving while a rebuild runs queues one follow-up rather than starting a second build beside it.
+
+## Platforms
+
+Linux, macOS and Windows all run the suite in CI.

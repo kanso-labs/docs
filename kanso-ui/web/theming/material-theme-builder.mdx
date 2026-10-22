@@ -1,0 +1,65 @@
+---
+title: "A scheme from Material Theme Builder"
+sidebarTitle: "Material Theme Builder"
+description: "Turn a Material Theme Builder export into --kui-* overrides, positive and negative included."
+icon: "wand-magic-sparkles"
+---
+
+The colour roles are Material Design's, so a whole scheme can come from [Material Theme Builder](https://material-foundation.github.io/material-theme-builder/) rather than being written out one role at a time.
+
+<Steps>
+  <Step title="Export the theme">
+    Pick a source colour, or one each for primary, secondary and tertiary, and export the theme as JSON. The file, `material-theme.json`, keeps its schemes under `schemes`, and the `light` and `dark` ones each name 49 roles in camel case.
+  </Step>
+  <Step title="Convert it to overrides">
+    Every one of those roles is a role here under the same name, `onPrimaryContainer` being `--kui-color-on-primary-container`, so this script turns the two schemes into overrides:
+
+    ```js theme.mjs
+    // node theme.mjs material-theme.json > theme.css
+    import { readFileSync } from 'node:fs'
+
+    const { schemes } = JSON.parse(readFileSync(process.argv[2], 'utf8'))
+
+    // onPrimaryContainer becomes --kui-color-on-primary-container.
+    const block = (scheme, indent) =>
+      Object.entries(scheme)
+        .map(([role, value]) => {
+          const name = role.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)
+          return `${indent}--kui-color-${name}: ${value};`
+        })
+        .join('\n')
+
+    console.log(`:root {
+    ${block(schemes.light, '  ')}
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+    ${block(schemes.dark, '    ')}
+      }
+    }`)
+    ```
+  </Step>
+  <Step title="Load the stylesheet">
+    Load `theme.css` like any other stylesheet of yours.
+  </Step>
+</Steps>
+
+`schemes` also holds a medium-contrast and a high-contrast version of each scheme, `light-medium-contrast` and the rest. Read those in place of `light` and `dark` for an app that offers more contrast.
+
+An app that pins light or dark keys the two blocks on its own switch rather than on the media query. See [Light or dark](/kanso-ui/web/theming/light-and-dark).
+
+## Positive and negative
+
+`positive` and `negative` are the two roles here that Material Design does not have. They are the `positive` and `negative` tones on `Avatar`, `Currency`, `Meter`, `ProductIcon`, `Tag` and `Text`, and the pair `Currency`'s `auto` tone picks between by a value's sign. They are kept apart from `error`, so a negative amount does not read as a failed field.
+
+The export has no role for them, so they keep the library's own green and rust unless you set them. To match them to a brand, add each as a custom colour in Theme Builder. A custom colour is drawn at the tones Material Design draws `error` at, which is how the library's own two are drawn, and its four roles in each scheme map onto four here:
+
+| Custom colour role | Here |
+| --- | --- |
+| Colour | `--kui-color-positive` |
+| On colour | `--kui-color-on-positive` |
+| Colour container | `--kui-color-positive-container` |
+| On colour container | `--kui-color-on-positive-container` |
+
+`negative` takes its four the same way. With the 49 from the script, that is every colour role `tokens.css` lists.

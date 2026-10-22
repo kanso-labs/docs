@@ -1,0 +1,110 @@
+---
+title: "Add it to your bundler"
+sidebarTitle: "Bundlers"
+description: "Import the entry point that matches your bundler."
+icon: "plug"
+---
+
+Each bundler has an entry point of its own, and each one's default export is the plugin for it. They all take the same [options](/style-dictionary/options).
+
+<Tabs>
+  <Tab title="Vite">
+    ```ts vite.config.ts
+    import StyleDictionary from '@kanso-labs/unplugin-style-dictionary/vite'
+    import { defineConfig } from 'vite'
+
+    export default defineConfig({
+      plugins: [
+        StyleDictionary({
+          config: 'tokens/config/sd.config.json',
+        }),
+      ],
+    })
+    ```
+
+    <Warning>
+    Keep the generated files out of Vite's `build.outDir`, which is `dist` unless you change it. When that directory sits inside the project root, `vite build` empties it after the plugin has compiled, and again on every `vite build --watch` rebuild. Write the tokens somewhere else, such as `build/`, or set `build.emptyOutDir` to `false`.
+    </Warning>
+  </Tab>
+  <Tab title="Rolldown">
+    ```ts rolldown.config.ts
+    import StyleDictionary from '@kanso-labs/unplugin-style-dictionary/rolldown'
+
+    export default {
+      plugins: [
+        StyleDictionary({
+          config: 'tokens/config/sd.config.json',
+        }),
+      ],
+    }
+    ```
+
+    Rolldown, and tools built on it such as [tsdown](https://tsdown.dev/), usually run as a one-shot build. There the plugin compiles once, in `buildStart`, which is enough to have the token files in place before the rest of the build reads them. Under `rolldown.watch()` a token edit rebuilds.
+  </Tab>
+  <Tab title="Rollup">
+    ```ts rollup.config.ts
+    import StyleDictionary from '@kanso-labs/unplugin-style-dictionary/rollup'
+
+    export default {
+      plugins: [StyleDictionary({ config: 'sd.config.json' })],
+    }
+    ```
+  </Tab>
+  <Tab title="Webpack">
+    ```js webpack.config.js
+    const {
+      default: StyleDictionary,
+    } = require('@kanso-labs/unplugin-style-dictionary/webpack')
+
+    module.exports = {
+      plugins: [StyleDictionary({ config: 'sd.config.json' })],
+    }
+    ```
+
+    The package ships ESM only. Node serves a `require` of it through `require(esm)`, which hands back the module namespace, so CommonJS reaches for `.default`. That needs Node 20.19 or 22.12 and newer, which the package already requires. An ESM config imports the default export as usual.
+  </Tab>
+  <Tab title="Rspack">
+    ```js rspack.config.js
+    const {
+      default: StyleDictionary,
+    } = require('@kanso-labs/unplugin-style-dictionary/rspack')
+
+    module.exports = {
+      plugins: [StyleDictionary({ config: 'sd.config.json' })],
+    }
+    ```
+
+    Rspack is webpack's plugin API, and the plugin treats it as one. Everything these pages say about webpack, such as where a relative `config` is resolved from and where a failed compile is reported, holds for Rspack too.
+  </Tab>
+</Tabs>
+
+## One configuration, several bundlers
+
+The root entry is the unplugin instance itself. Reach for it when one options object feeds more than one bundler:
+
+```ts
+import styleDictionary from '@kanso-labs/unplugin-style-dictionary'
+
+const options = { config: 'sd.config.json' }
+
+const forRollup = styleDictionary.rollup(options)
+const forWebpack = styleDictionary.webpack(options)
+```
+
+<Note>
+The root entry is not a way to reach a bundler with no subpath. unplugin also builds `.esbuild`, `.farm`, `.rsbuild` and others on it, and none of them is supported. `.esbuild` throws on its first build and writes nothing.
+</Note>
+
+## What each one rebuilds on
+
+Every target compiles the tokens before the build that reads them. A later token change rebuilds under each target's watch mode:
+
+| Target | Rebuilds on a token change |
+| --- | --- |
+| Vite | Under the dev server, and under `vite build --watch` on 6, 7 and 8 |
+| Rollup | Under `rollup --watch` |
+| Rolldown | Under `rolldown.watch()` |
+| Webpack | Under `webpack --watch` |
+| Rspack | Under `rspack --watch` |
+
+A one-shot build compiles once and does not rebuild. [Watching](/style-dictionary/watching) covers the rest.

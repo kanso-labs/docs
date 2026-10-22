@@ -1,0 +1,45 @@
+---
+title: "Building only some platforms"
+sidebarTitle: "Platforms"
+description: "Rebuild only what the page in front of you uses."
+icon: "filter"
+---
+
+By default every build compiles every platform, so a dev server serving a web app pays for iOS headers, Android XML and Dart classes on every token save. `platforms` narrows it to the names your configuration defines.
+
+```ts
+StyleDictionary({
+  config: 'sd.config.json',
+  // Build everything once, then rebuild only css while serving.
+  platforms: { watch: ['css'] },
+})
+```
+
+<ParamField path="platforms" type="string[] | { build?: string[]; watch?: string[] }">
+  An array selects the same platforms for every build. The object form splits the first compile, `build`, from the watch rebuilds, `watch`. An omitted key means every platform, so `{ watch: ['css'] }` builds all of them once and then only css.
+</ParamField>
+
+A name the configuration does not define is an error, as in Style Dictionary's own CLI. Any other shape, such as a single string or a `serve` key, throws a `TypeError` when the plugin is created.
+
+## What it saves
+
+Measured on a six-platform configuration (css, scss, js, ios, android, flutter), timing the build call alone:
+
+| Tokens | All platforms | css only | Saved |
+| --- | --- | --- | --- |
+| 500 | 12 ms | 1 ms | 10 ms |
+| 3,000 | 36 ms | 2 ms | 34 ms |
+| 10,000 | 103 ms | 4 ms | 99 ms |
+| 30,000 | 330 ms | 12 ms | 319 ms |
+
+<Warning>
+Unselected platforms keep whatever they last wrote. Nothing removes or refreshes their files, so scoping the `build` half ships stale output for the rest. Scope `watch` unless that is what you want.
+</Warning>
+
+## Generated output is disposable
+
+Nothing removes a generated file, ever. Drop a `files` entry, remove a platform or move a `buildPath`, and the old output stays where it was, still importable, still carrying its old values, and in a package build still published.
+
+So treat the build directory as disposable: delete it when a configuration changes shape, and keep it out of version control and away from hand-written files. Keep it out of the bundler's own output directory too, since Vite empties `build.outDir` after the plugin has compiled.
+
+There is deliberately no `clean` option. Style Dictionary's `cleanAllPlatforms()` removes the destinations the current configuration declares, which are exactly the files that are not orphans, and the `buildPath` directory along with them.

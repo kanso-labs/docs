@@ -1,55 +1,36 @@
-# Mintlify Starter Kit
+# docs
 
-Use the starter kit to get your docs deployed and ready to customize.
+The source of [docs.kansolabs.org](https://docs.kansolabs.org), the guides for
+the open-source projects [Kanso Labs](https://kansolabs.org) makes: Kanso UI on
+the web and on React Native, the Style Dictionary plugin, the Home Assistant
+applications and robot vacuum map, and the conventions and shared CI every
+repository follows.
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+The site is built by [Mintlify](https://mintlify.com) from this repository's
+`main` branch. Every page is an MDX file, and `docs.json` holds the theme and
+the navigation.
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+## Previewing
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
+Run the Mintlify CLI from the repository root, where `docs.json` is:
 
-## AI-assisted writing
-
-Set up your AI coding tool to work with Mintlify:
-
-```bash
-npx skills add https://mintlify.com/docs
+```shell
+npx mint dev
 ```
 
-This command installs Mintlify's documentation skill for your configured AI tools like Claude Code, Cursor, Windsurf, and others. The skill includes component reference, writing standards, and workflow guidance.
+The preview is at http://localhost:3000. Before opening a pull request, check
+the links as well:
 
-See the [AI tools guides](/ai-tools) for tool-specific setup.
-
-## Development
-
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
-
-```
-npm i -g mint
+```shell
+npx mint broken-links
 ```
 
-Run the following command at the root of your documentation, where your `docs.json` is located:
+## Publishing
 
-```
-mint dev
-```
+Each pull request gets a preview, which `mintlify[bot]` links in a comment, and
+merging it into `main` publishes the site. Nothing else deploys it, so a change made in Mintlify's web
+editor would be overwritten by the next merge: change the site here.
 
-View your local preview at `http://localhost:3000`.
+## Licence
 
-## Publishing changes
-
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
-
-## Need help?
-
-### Troubleshooting
-
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
-
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+[MIT](LICENSE.md).

@@ -1,0 +1,122 @@
+---
+title: "Shared actions"
+description: "The composite actions and reusable workflows every Kanso Labs repository calls, from kanso-labs/actions."
+icon: "github"
+---
+
+[kanso-labs/actions](https://github.com/kanso-labs/actions) holds the CI the repositories share. Every repository is public, so nothing needs configuring to call these.
+
+| Name | Kind | What it does |
+| --- | --- | --- |
+| `setup-node` | Composite action | Installs the Node in `.tool-versions`, restores the npm cache and runs `npm ci` |
+| `lint-workflows` | Composite action | Runs actionlint, pinned, over `.github/workflows` |
+| `upstream-changelog` | Composite action | Puts an updated dependency's own release notes into the changelog |
+| `_release-please.yaml` | Reusable workflow | Proposes and merges releases, with a token whose pull requests run CI |
+| `_publish-npm.yaml` | Reusable workflow | Publishes to npm with trusted publishing, then to GitHub Packages |
+| `_renovate-command.yaml` | Reusable workflow | Answers `@renovate rebase` on a pull request |
+| `_dependabot-auto-merge.yaml` | Reusable workflow | Merges Dependabot's minor and patch security fixes once checks pass |
+
+## Pin an exact version
+
+Call each one at an exact tag, never `@main` or `@v4`. Renovate opens the bump pull requests, so a mistake in a release reaches one repository at a time, in a pull request, rather than every repository the moment it merges.
+
+```yaml
+- name: Set up Node
+  uses: kanso-labs/actions/setup-node@v4.0.0
+```
+
+The current tag is on the [releases page](https://github.com/kanso-labs/actions/releases). A release that changes how a caller must call something is marked breaking, and moves the major.
+
+## setup-node
+
+Reads the version from `.tool-versions`, restores npm's cache through `actions/setup-node`, and runs `npm ci`. Pass `ignore-scripts: true` in a job that does not need what a `prepare` script installs, such as Playwright's browsers. Its inputs are in [its README](https://github.com/kanso-labs/actions/tree/main/setup-node).
+
+## lint-workflows
+
+Runs actionlint at a pinned version. Put it in a job a ruleset already requires, such as `Lint`, rather than in a job of its own: a new job is a new check name, and a check nothing requires can fail without stopping anything. A repository silences a rule by committing `.github/actionlint.yaml`.
+
+## upstream-changelog
+
+Rewrites a Renovate pull request's body so that release-please, at merge time, files the updated dependency's release notes under an **Upstream changes** heading. It suits a repository that packages someone else's software, where what changed upstream is what changed for a user, as Home Assistant Applications does. In a library it would bury the library's own notes. The mechanism is in [its README](https://github.com/kanso-labs/actions/tree/main/upstream-changelog).
+
+## release-please
+
+```yaml
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+concurrency:
+  cancel-in-progress: false
+  group: release-please
+
+jobs:
+  release-please:
+    name: Propose releases
+    uses: kanso-labs/actions/.github/workflows/_release-please.yaml@v4.0.0
+    with:
+      auto-merge: ${{ github.event_name == 'schedule' }}
+    secrets:
+      client-id: ${{ secrets.RELEASE_PLEASE_CLIENT_ID }}
+      private-key: ${{ secrets.RELEASE_PLEASE_PRIVATE_KEY }}
+```
+
+- **The concurrency group is required, and goes in the caller.** Overlapping runs race to cut the same tags. Keep `cancel-in-progress` off, so the last push still gets a run.
+- **An application token makes the release pull request run CI.** A pull request opened with `GITHUB_TOKEN` starts no workflow, so its checks never report. Without the two secrets the workflow falls back to `GITHUB_TOKEN`, warns, and leaves the merge to a person.
+- **The schedule batches a day into one release.** Every push keeps the release pull request current, and only the scheduled run merges it. Before merging, the workflow waits for the checks and refuses while a commit the changelog would list has landed since the pull request was computed.
+- **`runs-on`** takes the runner as JSON, for a private repository that picks a self-hosted runner first.
+
+It outputs `release_created`, `releases_created`, `paths_released`, `prs`, `tag_name` and `version`.
+
+## publish-npm
+
+```yaml
+publish:
+  name: Publish to npm
+  needs: release-please
+  if: ${{ !cancelled() && needs.release-please.outputs.release_created == 'true' }}
+  permissions:
+    contents: read
+    id-token: write
+    packages: write
+  uses: kanso-labs/actions/.github/workflows/_publish-npm.yaml@v4.2.0
+  with:
+    tag-name: ${{ needs.release-please.outputs.tag_name }}
+```
+
+<Warning>
+  Compare `release_created` with the string `'true'`. The output is `"false"` when release-please runs and cuts nothing, which a bare truthiness test passes, publishing on every merge.
+</Warning>
+
+- **Keep `!cancelled()`.** release-please can tag a release and then fail updating pull requests, and GitHub's default `success()` would then skip the publish for good.
+- **Pass `tag-name`**, from v4.2.0. Both jobs then refuse to publish any commit but the one the release was tagged at.
+- **npm first, then GitHub Packages.** The second job waits on the first, so the mirror never gets ahead of the original. npm authenticates through trusted publishing and attests the tarball; GitHub Packages takes `GITHUB_TOKEN` with `packages: write`.
+- **A package's first npm version is published by hand.** npm registers a trusted publisher on the package's page, which exists only once a version does.
+
+| Input | Default | What it sets |
+| --- | --- | --- |
+| `build-script` | `build` | npm script producing what is published; `''` skips the build |
+| `dry-run` | `false` | Publish with `--dry-run`, uploading nothing |
+| `github-registry-url` | `https://npm.pkg.github.com` | Registry the second job publishes to |
+| `ignore-scripts` | `true` | Pass `--ignore-scripts` to `npm ci` and the publish |
+| `node-version-file` | `.tool-versions` | File the Node version is read from |
+| `registry-url` | `https://registry.npmjs.org` | Public registry to publish to and install from |
+
+## renovate-command
+
+Renovate has no comment commands of its own, so this workflow adds them. It ticks the rebase checkbox in a Renovate pull request's body, which is what clicking it does, then dispatches the [runner](/engineering/renovate) so the tick is read within a minute rather than at the next three-hourly run.
+
+| Comment | Effect |
+| --- | --- |
+| `@renovate rebase`, `@renovate retry`, `@renovate recreate` | Ticks the pull request's rebase checkbox, then starts a run |
+| `@renovate run` | Starts a run without touching the pull request |
+
+The bot reacts 👀 when it accepts a command, 🚀 when it has dispatched the run, and 😕 when it refuses. The author needs write access, and the mention has to open a line. `issue_comment` runs only the workflow on the default branch, so a caller has to merge before it can be tried.
+
+## dependabot-auto-merge
+
+Dependabot opens security fixes only here, often for a dependency Renovate cannot see because only a lock file names it. This workflow turns on auto-merge for its minor and patch updates, the rule Renovate's follow, with no waiting period. The repository needs **Allow auto-merge** turned on, and a Dependabot title that passes commitlint, set through `commit-message` in its `.github/dependabot.yaml`.

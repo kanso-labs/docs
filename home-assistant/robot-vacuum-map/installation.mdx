@@ -1,0 +1,34 @@
+---
+title: "Installation"
+description: "Install Robot Vacuum Map through HACS."
+icon: "download"
+---
+
+It needs Home Assistant 2026.3 or later, and [HACS](https://hacs.xyz/).
+
+<Steps>
+  <Step title="Add the repository to HACS">
+    Open the repository in your Home Assistant's HACS:
+
+    [![Open your Home Assistant instance and open this repository in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=kanso-labs&repository=home-assistant-robot-vacuum-map&category=integration)
+
+    Or add it by hand, from **HACS → ⋮ → Custom repositories**, as an **Integration**:
+
+    ```text
+    https://github.com/kanso-labs/home-assistant-robot-vacuum-map
+    ```
+  </Step>
+  <Step title="Download it">
+    Download **Robot Vacuum Map** from HACS. HACS installs the newest release and offers each later one as an update.
+  </Step>
+  <Step title="Restart Home Assistant">
+    The integration loads only after a restart.
+  </Step>
+  <Step title="Add the integration">
+    Continue with [Configuration](/home-assistant/robot-vacuum-map/configuration).
+  </Step>
+</Steps>
+
+<Info>
+It can sit beside upstream's Xiaomi Cloud Map Extractor, since the two have different domains. Each draws its own map, and each asks Xiaomi's cloud for it.
+</Info>

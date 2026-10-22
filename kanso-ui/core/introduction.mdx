@@ -1,0 +1,33 @@
+---
+title: "Kanso UI Core"
+sidebarTitle: "Introduction"
+description: "The design data both Kanso UI libraries share: tokens, glyph paths and demo schemes."
+icon: "book-open"
+---
+
+`@kanso-labs/kanso-ui-core` is the design data the two component libraries share. [Kanso UI](/kanso-ui/web/introduction) draws it on the web and [Kanso UI for React Native](/kanso-ui/react-native/introduction) on iOS and Android.
+
+The package is **data and types only**. It renders nothing, imports no React and relies on no platform, so a browser bundle, Metro and Node can all load it.
+
+<Info>
+  You do not install it in an app. Each library takes it as a pinned development dependency and bundles what it reads into its own `dist`, so an app installs `@kanso-labs/kanso-ui` or `@kanso-labs/react-native-kanso-ui` and never this. It is useful directly when you build tooling of your own around the tokens.
+</Info>
+
+## What it publishes
+
+| Import | What it is |
+| --- | --- |
+| `@kanso-labs/kanso-ui-core` | `light` and `dark`, every `--kui-*` property at its value in each scheme; `breakpoints`, the window size classes; the `KuiTheme` type |
+| `@kanso-labs/kanso-ui-core/glyphs` | The path data of the glyphs both libraries draw inside their controls, and the 24-unit `gridSize` |
+| `@kanso-labs/kanso-ui-core/themes` | `demoThemes`, the seven demo schemes both Storybooks render |
+| `@kanso-labs/kanso-ui-core/tokens.css` | The `--kui-*` custom properties at their defaults, with the dark colours under `prefers-color-scheme: dark` |
+| `@kanso-labs/kanso-ui-core/tokens.json` | The design tokens themselves, in the W3C Design Tokens format |
+
+<CardGroup cols={2}>
+  <Card title="Design tokens" icon="swatchbook" href="/kanso-ui/core/tokens">
+    The token source, the files built from it, and how a change reaches both libraries.
+  </Card>
+  <Card title="Glyphs and demo schemes" icon="shapes" href="/kanso-ui/core/glyphs-and-schemes">
+    The two subpaths both Storybooks and both libraries draw from.
+  </Card>
+</CardGroup>

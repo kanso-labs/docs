@@ -1,0 +1,66 @@
+---
+title: "Installation and usage"
+description: "Install Kanso UI and render a component, with nothing else to set up."
+icon: "download"
+---
+
+## Install
+
+```bash
+npm install @kanso-labs/kanso-ui
+```
+
+The package is ESM only, and needs React 19 or newer: its peers are `react` and `react-dom` at `>=19.0.0`.
+
+Its subpaths are `./date`, `./styles.css`, `./tokens.css` and `./tokens.json`, beside the main entry.
+
+## Render a component
+
+```tsx
+import { Button } from '@kanso-labs/kanso-ui'
+
+export function Example() {
+  return <Button>Click me</Button>
+}
+```
+
+Components render correctly with no further setup:
+
+- Importing from the package pulls in the stylesheet the library compiles.
+- Every design token has a built-in default, in both light and dark, following the OS-level `prefers-color-scheme`.
+- Every component sizes itself with `box-sizing: border-box` rather than leaving that to a reset you supply.
+
+## The package loads through a bundler
+
+The main entry imports `./styles.css` itself, and a bundler is what resolves that import. Node has no loader for CSS, so in plain Node an `import` or a `require()` of `@kanso-labs/kanso-ui` throws `ERR_UNKNOWN_FILE_EXTENSION`.
+
+`@kanso-labs/kanso-ui/date` is the one entry plain Node can load.
+
+A server renderer or a test runner that leaves dependencies to Node takes one setting to hand the package to its bundler instead. [Server rendering and tests](/kanso-ui/web/ssr-and-tests) gives it for Vite, Vitest and Jest.
+
+### Loading the stylesheet apart from the JavaScript
+
+The same stylesheet is published on its own as `@kanso-labs/kanso-ui/styles.css`, for CSS that loads it separately: an `@import` in a stylesheet of your own, or a `<link>`.
+
+It adds the rules and nothing else, so it is not a way round the main entry's own import.
+
+## Position a component from the call site
+
+`className` and `style` reach the element a component renders, so you position a component like any other element:
+
+```tsx
+<Card className="col-span-2" style={{ marginBlockStart: '2rem' }} />
+```
+
+A component also takes a `ref` for the element its class lands on. A field takes `inputRef` for its own control as well.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="CSS cascade layers" icon="layer-group" href="/kanso-ui/web/css-layers">
+    Fit the library's rules beside Tailwind or a reset.
+  </Card>
+  <Card title="React Aria and dates" icon="universal-access" href="/kanso-ui/web/react-aria">
+    The utilities the package re-exports, and why not to install them twice.
+  </Card>
+</CardGroup>

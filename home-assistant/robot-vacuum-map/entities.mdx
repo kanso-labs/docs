@@ -1,0 +1,28 @@
+---
+title: "Entities"
+description: "The map, its controls, and a sensor for each element of it."
+icon: "list"
+---
+
+| Entity | What it does |
+| --- | --- |
+| **Live map** (image) | The rendered map |
+| **Live map** (camera) | The same map as a camera, for cards that need one. Disabled by default |
+| **Update map** (switch) | Pauses and resumes automatic updates |
+| **Force map update** (button) | Updates the map now |
+| **Is map empty** (binary sensor) | Whether the last map came back empty |
+| Positions, rooms, paths, zones, walls and obstacles (sensors) | One sensor for each element of the map |
+
+## How often the map updates
+
+The map is fetched every 10 seconds while the vacuum is working, and a few more times after it stops. Turn **Update map** off to stop fetching altogether, and press **Force map update** for one fetch on demand.
+
+On the Xiaomi Robot Vacuum S20+, a map or path that has not changed since the last update is drawn again rather than downloaded again. With Xiaomi Home installed, the robot's position moves more often than that; see [With Xiaomi Home](/home-assistant/robot-vacuum-map/configuration#with-xiaomi-home).
+
+## Showing it on a dashboard
+
+The image entity works in a picture entity card. The camera entity is there for cards written for a camera, such as upstream's vacuum map cards; enable it from the entity's settings first.
+
+<Info>
+The blueprints in the repository's `blueprints/` folder are upstream's, written for its earlier YAML camera, and have not been checked against the **Update map** switch.
+</Info>

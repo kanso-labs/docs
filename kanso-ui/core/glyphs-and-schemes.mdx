@@ -1,0 +1,48 @@
+---
+title: "Glyphs and demo schemes"
+description: "The glyph paths both libraries draw inside their controls, and the seven demo schemes both Storybooks render."
+icon: "shapes"
+---
+
+## Glyphs
+
+`@kanso-labs/kanso-ui-core/glyphs` publishes the path data of the glyphs both libraries draw inside their own controls: a checkbox's check and dash, a stepper's plus and minus, a search field's magnifier and cross, and the chevrons, arrows, calendar and clock the pickers and menus show.
+
+Each is a `<name>Path` constant holding an SVG path's `d` on the 24-unit grid `gridSize` names, as Material Symbols draws it.
+
+```tsx
+import { checkPath, gridSize } from '@kanso-labs/kanso-ui-core/glyphs'
+
+export function Check() {
+  return (
+    <svg viewBox={`0 0 ${gridSize} ${gridSize}`} width={24} height={24}>
+      <path d={checkPath} fill="currentColor" />
+    </svg>
+  )
+}
+```
+
+The package draws nothing itself. The web library renders an inline SVG and the native one `react-native-svg`, and each decides whether a glyph mirrors in a right-to-left layout.
+
+<Accordion title="Every glyph">
+  `arrowBackPath`, `arrowDownwardPath`, `arrowDropDownPath`, `arrowUpwardPath`, `calendarPath`, `checkCirclePath`, `checkPath`, `chevronDownPath`, `chevronEndPath`, `clockPath`, `closePath`, `errorPath`, `keyboardPath`, `minusPath`, `personPath`, `plusPath` and `searchPath`.
+</Accordion>
+
+## Demo schemes
+
+`@kanso-labs/kanso-ui-core/themes` publishes `demoThemes`, the seven schemes both Storybooks render: Editorial, Graphite, Marquee, Neon, Nordic, Poster and Terminal. Each is a record of a `label`, a one-sentence `description` and a `theme`, the `KuiTheme` a consumer would hand either library's `ThemeScope`.
+
+```tsx
+import { ThemeScope } from '@kanso-labs/kanso-ui'
+import { demoThemes } from '@kanso-labs/kanso-ui-core/themes'
+
+<ThemeScope theme={demoThemes.editorial.theme}>…</ThemeScope>
+```
+
+<Warning>
+  They are Storybook material, written to show the shape of a theme, not palettes to ship. That is why they sit on a subpath of their own rather than in the main entry.
+</Warning>
+
+They are still worth reading as examples, because each follows the one rule a real theme has to: **it states every colour.** A colour's default is a light and dark pair, so a colour a map leaves out falls back to whichever half the reader's device asks for. Typography, spacing, radii, shadows and motion have one value in both schemes, so a partial override of those reads the same everywhere.
+
+See them rendered in the [web Storybook](https://kanso-ui.kansolabs.org/) under Theming, or with the Theme control on any story.
