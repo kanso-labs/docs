@@ -106,16 +106,21 @@ subject, so that title is the one line that reaches `main`. Write it as a
 Conventional Commit: `docs(kanso-ui): add the theming guide`. Nothing here is
 released, so the type is for the reader.
 
-Mintlify posts a `Mintlify Deployment` check on each pull request, but it built
-no preview for the first one, answering "No eligible deployments found". Read a
-changed page under `npx mint dev` before merging, then on the site once the merge
-has deployed.
+Each pull request gets a Mintlify preview, linked from a comment by
+`mintlify[bot]` a minute or so after a push. Its `Mintlify Deployment` check
+reads "skipped" whatever happens, so wait for the comment rather than the check,
+and read the changed pages there before merging.
 
 ## Traps
 
 **MDX reads a bare `{` and `<` as code.** In prose, write them inside a code
 span, or the page fails to build: a `{` opens a JavaScript expression and a `<`
 a component. A comment is `{/* … */}`, never `<!-- … -->`.
+
+**Mintlify publishes every Markdown file it is not told to ignore.** Its own
+list skips `README.md` and `LICENSE.md` but not `AGENTS.md` or `CLAUDE.md`,
+which is why `.mintignore` names both. A new Markdown file that is not a page
+goes there too.
 
 **`npx mint broken-links` checks links between pages, and nothing outside.** A
 link to GitHub, a Storybook or kansolabs.org that has moved still passes.
