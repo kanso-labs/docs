@@ -27,8 +27,7 @@ npx mint broken-links
 
 ## Publishing
 
-A pull request gets a Mintlify preview deployment, and merging it into `main`
-publishes the site. Nothing else deploys it, so a change made in Mintlify's web
+Merging a pull request into `main` publishes the site within a minute or so. Nothing else deploys it, so a change made in Mintlify's web
 editor would be overwritten by the next merge: change the site here.
 
 ## Licence

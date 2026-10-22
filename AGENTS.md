@@ -106,9 +106,10 @@ subject, so that title is the one line that reaches `main`. Write it as a
 Conventional Commit: `docs(kanso-ui): add the theming guide`. Nothing here is
 released, so the type is for the reader.
 
-Each pull request gets a Mintlify preview deployment. Read the page there before
-merging, since the local preview and the published build do not always agree on
-a component.
+Mintlify posts a `Mintlify Deployment` check on each pull request, but it built
+no preview for the first one, answering "No eligible deployments found". Read a
+changed page under `npx mint dev` before merging, then on the site once the merge
+has deployed.
 
 ## Traps
 
