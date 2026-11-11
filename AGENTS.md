@@ -101,6 +101,13 @@ keep the order the sidebar shows them in. There is no workflow, package or
 
 ## Commits and pull requests
 
+**Dependabot raises security updates here and nothing else.**
+`.github/dependabot.yaml` has one `github-actions` entry with
+`open-pull-requests-limit: 0` and `commit-message.prefix: deps`, and
+`dependabot-auto-merge.yaml` enables squash auto-merge for its minor and patch
+updates. The ruleset requires no status checks, so such a pull request merges
+as soon as GitHub allows.
+
 Pull requests are squash-merged, with the pull request title as the commit
 subject, so that title is the one line that reaches `main`. Write it as a
 Conventional Commit: `docs(kanso-ui): add the theming guide`. Nothing here is
