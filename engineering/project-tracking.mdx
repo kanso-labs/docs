@@ -1,0 +1,130 @@
+---
+title: "Project tracking"
+description: "How Kanso Labs tracks work in GitHub Projects: what an issue carries, and the fields, views and workflows every project has."
+icon: "diagram-project"
+---
+
+Work is tracked in [GitHub Projects](https://github.com/orgs/kanso-labs/projects), and every project follows one standard. The canonical text is [`PROJECTS.md`](https://github.com/kanso-labs/.github/blob/main/PROJECTS.md) in `kanso-labs/.github`, and the organization's Default Project Template implements it: a new project is copied from the template, so it starts with the fields, views and workflows below. A project's own README says only what is particular to it.
+
+The public projects are listed under [Roadmaps](/projects#roadmaps).
+
+## One home for each fact
+
+Every fact about a piece of work is recorded in exactly one place. The projects this standard replaces wrote the kind of work five times over, in a project field, a label, the issue type, the title and the body, and every audit found copies that disagreed. A fact with one home cannot disagree with itself.
+
+| Fact | Its one home |
+| --- | --- |
+| What kind of work | The issue type |
+| The finer kind | The title's Conventional Commit prefix, `refactor(…)` |
+| What it belongs to | Its parent issue |
+| What must land first | Its blocked-by links |
+| How much it matters | The Priority issue field |
+| How big it is | The Effort issue field |
+| Which release needs it | Its milestone |
+| Where it stands | The project's Status field |
+| Which part it touches | The project's Area field |
+| Which platform | Its repository |
+
+Issue types, issue fields, sub-issues and blocked-by links belong to the issue rather than to a project, so they show wherever the issue does. Status and Area are project fields because their meaning is the project's.
+
+## Issues
+
+The organization defines six issue types, and every issue carries one:
+
+| Type | For |
+| --- | --- |
+| Epic | An outcome too big for one pull request, delivered by its sub-issues |
+| Feature | Something the project does not do yet |
+| Bug | Behaviour the project has and gets wrong |
+| Task | Work that adds no behaviour and fixes none: tooling, CI, docs, tests, refactors |
+| Decision | A choice to make before the work that assumes it |
+| Spike | A question answered by experiment before anything is built |
+
+- **A title is a Conventional Commit**, `feat(…)`, `fix(…)`, `docs(…)`, because it becomes the pull request's title, and [release-please reads that](/engineering/commits-and-releases).
+- **A body says what the work is and how to know it is finished.** It carries no metadata, since each fact has a home of its own above.
+- **An epic owns its work across repositories.** Its sub-issues may sit in any repository its project covers, and it lists its work as sub-issues, never as a task list, so its progress is counted rather than ticked by hand.
+- **Order comes from blocked-by links, not from numbering.** An issue that something open still blocks is not Ready.
+- **A Decision is an issue**, so the work that assumes it can link to it. A taken one records the choice and is closed as completed. A Spike is closed once its question has an answer, and the answer is in it.
+
+### Priority and Effort
+
+Every issue on a project carries both once it leaves Backlog:
+
+| Field | Values |
+| --- | --- |
+| Priority | Urgent drops other work; High is next; Medium is the default; Low waits for room |
+| Effort | Low is under half a day, Medium one to two days, High more |
+
+Start date and Target date are optional, set where a date is real, such as a release someone is waiting on. All four fields are visible to everyone, so a contributor sees what an issue's priority and effort are.
+
+## Projects
+
+A project covers a product, not a repository. A product that spans repositories, a web app with its native app and the package they share, is one project linked to all of them, so an epic and its sub-issues sit on one board. The repositories that serve the whole organization share one project too, Kanso Labs.
+
+Every issue in a linked repository is on its project, except the ones a bot files for itself, such as Renovate's Dependency Dashboard. Each repository puts them there itself, by calling the shared [`_add-to-project.yaml`](/engineering/shared-actions#add-to-project) workflow on every issue opened or reopened.
+
+### Status
+
+| Status | Means |
+| --- | --- |
+| Backlog | Filed and not yet triaged |
+| Ready | Area, Priority and Effort are set, and nothing open blocks it |
+| In progress | Being worked on |
+| In review | A pull request is linked |
+| Done | Closed |
+
+New items land in Backlog, and the workflows below move them from In progress on. Moving an item from Backlog to Ready is the triage, and is done by hand.
+
+### Area
+
+Area is the one field each project defines for itself: the parts of the product, one option per part, so the table grouped by Area reads as a map of it. A project may also add a field the standard cannot guess, and its README names each one and what it holds.
+
+### Milestones
+
+A milestone is a release: it is named after the version release-please will cut, `v1.0.0`, and holds the issues that release needs. Milestones belong to a repository, so a project spanning several uses one per repository.
+
+## Views
+
+Every project has these views, in this order and with these names:
+
+| View | Layout | Shows |
+| --- | --- | --- |
+| Board | Board | Every item but epics, in Status columns, one row per parent, by Priority |
+| Triage | Table | Backlog, oldest first, with Area, Priority and Effort to fill in |
+| Epics | Table | Epics, with their sub-issue progress, Priority, milestone and Target date |
+| By area | Table | Open items but epics, grouped by Area |
+| Open questions | Table | Open decisions and spikes |
+
+A project that sets dates adds **Timeline**, a roadmap of Start date to Target date.
+
+## Workflows
+
+Every project runs GitHub's built-in workflows with these settings:
+
+| Workflow | Setting |
+| --- | --- |
+| Item added to project | Status: Backlog |
+| Item reopened | Status: In progress |
+| Pull request linked to issue | Status: In review |
+| Pull request merged | Status: Done |
+| Item closed | Status: Done |
+| Auto-close issue | On, when Status is set to Done |
+| Auto-add sub-issues to project | On |
+| Auto-archive items | `is:issue is:closed updated:<@today-1w` |
+
+Item reopened matters more than it looks: without it, an issue reopened after a merged pull request stays Done.
+
+## Labels
+
+A label is kept only where a bot or a contributor relies on it. Issue types, issue fields and project fields carry everything else, and a label alongside them is one more copy to drift. [`labels.yaml`](https://github.com/kanso-labs/.github/blob/main/labels.yaml) is the canonical list:
+
+| List | Holds |
+| --- | --- |
+| `labels` | The ones every repository carries: the three release-please and Dependabot mark their pull requests with, and `good first issue` and `help wanted`, which GitHub shows to new contributors |
+| `retired` | The ones deleted from every repository, such as `bug`, `enhancement` and every `kind:`, `area:` and `platform:` label |
+
+A label in neither list is left alone. The shared [`_sync-labels.yaml`](/engineering/shared-actions#sync-labels) workflow applies the list to whichever repository calls it.
+
+<Card title="Projects" icon="grid-2" href="/projects#roadmaps">
+  Every public project, and the repositories it covers.
+</Card>

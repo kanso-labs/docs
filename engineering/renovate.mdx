@@ -58,7 +58,7 @@ Listing a repository in the `repositories` array of the runner's [`config.js`](h
   Remove a repository from that list in the same change that deletes or renames it on GitHub. Renovate fails the whole run on a name it cannot resolve, which stops updates in every other repository too.
 </Warning>
 
-A repository that calls the [shared actions](/engineering/shared-actions) has to be listed, since Renovate is the only thing that bumps those exact tags. And none should carry a `.github/dependabot.yml` for version updates: the two bots would open competing pull requests for the same upgrades. Dependabot is left to open security fixes alone.
+A repository that calls the [shared actions](/engineering/shared-actions) has to be listed, since Renovate is the only thing that bumps those exact tags. And none should have Dependabot open version updates: the two bots would open competing pull requests for the same upgrades. Dependabot is left to open security fixes alone. Each repository's `.github/dependabot.yaml` sets `open-pull-requests-limit: 0` on every entry, which turns its version updates off and leaves its security updates running, and titles them with Renovate's `deps` prefix. The shared [`_dependabot-auto-merge.yaml`](/engineering/shared-actions#dependabot-auto-merge) workflow then merges the minor and patch ones.
 
 ## Asking Renovate to act now
 

@@ -23,7 +23,7 @@ from this repository, so an edit made there is overwritten by the next merge.
 | `style-dictionary/`                | unplugin-style-dictionary: getting started, guides and the reference  |
 | `home-assistant/applications/`     | The applications repository, and installing from it                   |
 | `home-assistant/robot-vacuum-map/` | The robot vacuum map integration                                      |
-| `engineering/`                     | The conventions, commits and releases, the shared CI and Renovate     |
+| `engineering/`                     | The conventions, releases, project tracking, the shared CI, Renovate  |
 | `logo/`, `favicon.png`             | The mark, cropped from the organization's avatar                      |
 
 `docs.json` sorts the pages into five tabs: Home, Kanso UI, Style Dictionary plugin,

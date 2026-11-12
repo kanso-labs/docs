@@ -192,7 +192,8 @@
             "icon": "compass",
             "pages": [
               "engineering/conventions",
-              "engineering/commits-and-releases"
+              "engineering/commits-and-releases",
+              "engineering/project-tracking"
             ]
           },
           {

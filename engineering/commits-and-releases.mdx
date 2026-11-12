@@ -41,6 +41,8 @@ A few repositories release on more types than these, and each says so in its `AG
 
 The organization's [shared Renovate preset](/engineering/renovate) types every Renovate commit `deps`, and each repository's `release-please-config.json` gives `deps` a visible **Dependencies** section. The two move together: that section list replaces release-please's defaults wholesale, so a type missing from it is invisible rather than merely unstyled.
 
+Dependabot's security fixes are titled the same way. Each repository's `.github/dependabot.yaml` sets `commit-message.prefix: deps`, because Dependabot's default title, such as `chore(deps-dev): Bump …`, is a `chore` that releases nothing, and fails commitlint where a repository checks titles. Robot Vacuum Map is the exception: `deps` is hidden in its changelog, so a fix to a runtime dependency there is typed `fix`, from Renovate and Dependabot alike, and that is what puts it in a release.
+
 ## Breaking changes
 
 The squash keeps the title and drops every body, so a `BREAKING CHANGE:` footer written in a branch commit never reaches `main`. A breaking pull request carries its migration in a commit override at the end of its body instead, which release-please parses in place of the squash commit:

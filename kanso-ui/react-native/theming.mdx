@@ -63,7 +63,7 @@ What the library draws above the screen follows the scope it was opened in rathe
 
 ## Fonts
 
-Neither package ships a font. On iOS and Android a type role draws in the first family its token names when the app has registered that family with [expo-font](https://docs.expo.dev/versions/latest/sdk/font/) under that name, and in the system font otherwise.
+Neither package ships a font. On iOS and Android a type role draws in the first family its token names when the app has registered that family with [expo-font](https://docs.expo.dev/versions/latest/sdk/font/) under that name. Otherwise the mono family, which code, keycaps and amounts draw in, takes the platform's monospaced face, and the rest take the system font.
 
 ```tsx
 import { useFonts } from 'expo-font'
