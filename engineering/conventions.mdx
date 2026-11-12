@@ -72,6 +72,12 @@ Nothing enforces the copies, deliberately: the organization decided a checker wa
   </Step>
 </Steps>
 
+Every repository but `kanso-labs/.github` carries a copy, so the list of copies is the organization's list of repositories:
+
+```shell
+gh repo list kanso-labs --no-archived
+```
+
 <Card title="Commits and releases" icon="code-commit" href="/engineering/commits-and-releases">
   How a pull request title becomes a version, a changelog line and a release.
 </Card>

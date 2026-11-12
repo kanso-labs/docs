@@ -15,6 +15,8 @@ icon: "github"
 | `_publish-npm.yaml` | Reusable workflow | Publishes to npm with trusted publishing, then to GitHub Packages |
 | `_renovate-command.yaml` | Reusable workflow | Answers `@renovate rebase` on a pull request |
 | `_dependabot-auto-merge.yaml` | Reusable workflow | Merges Dependabot's minor and patch security fixes once checks pass |
+| `_add-to-project.yaml` | Reusable workflow | Puts every new issue on its project, from every repository the project covers |
+| `_sync-labels.yaml` | Reusable workflow | Keeps a repository's labels to the organization's `labels.yaml` |
 
 ## Pin an exact version
 
@@ -68,6 +70,7 @@ jobs:
 - **The concurrency group is required, and goes in the caller.** Overlapping runs race to cut the same tags. Keep `cancel-in-progress` off, so the last push still gets a run.
 - **An application token makes the release pull request run CI.** A pull request opened with `GITHUB_TOKEN` starts no workflow, so its checks never report. Without the two secrets the workflow falls back to `GITHUB_TOKEN`, warns, and leaves the merge to a person.
 - **The schedule batches a day into one release.** Every push keeps the release pull request current, and only the scheduled run merges it. Before merging, the workflow waits for the checks and refuses while a commit the changelog would list has landed since the pull request was computed.
+- **Released issues go back to Done.** A release pull request's changelog repeats each commit's `Closes #N`, which GitHub reads as the pull request closing those issues, and the [project workflows](/engineering/project-tracking#workflows) then move them to In review, where nothing moves a closed issue on. So every run with an application token sets each closed issue the latest release pull requests name back to Done, on every project it is on. The app needs **Organization projects: Read and write** for this; without it the run warns and skips the step, and the release is cut either way.
 - **`runs-on`** takes the runner as JSON, for a private repository that picks a self-hosted runner first.
 
 It outputs `release_created`, `releases_created`, `paths_released`, `prs`, `tag_name` and `version`.
@@ -119,4 +122,68 @@ The bot reacts 👀 when it accepts a command, 🚀 when it has dispatched the r
 
 ## dependabot-auto-merge
 
-Dependabot opens security fixes only here, often for a dependency Renovate cannot see because only a lock file names it. This workflow turns on auto-merge for its minor and patch updates, the rule Renovate's follow, with no waiting period. The repository needs **Allow auto-merge** turned on, and a Dependabot title that passes commitlint, set through `commit-message` in its `.github/dependabot.yaml`.
+Dependabot opens security fixes only here, often for a dependency Renovate cannot see because only a lock file names it. This workflow turns on auto-merge for its minor and patch updates, the rule Renovate's follow, with no waiting period, and leaves a major to a person. The repository needs **Allow auto-merge** turned on, and a Dependabot title that passes commitlint, set through `commit-message` in its `.github/dependabot.yaml`.
+
+Only the default branch's copy of the caller runs for a Dependabot pull request, so a change to it has to merge before it can be tried.
+
+## add-to-project
+
+The organization's [project standard](/engineering/project-tracking) puts every issue in a project's repositories on that project. GitHub's built-in auto-add workflow covers one repository per project on GitHub Free, so each repository that calls this workflow adds its own issues.
+
+```yaml
+name: Add to project
+
+on:
+  issues:
+    types:
+      - opened
+      - reopened
+
+permissions: {}
+
+jobs:
+  add-to-project:
+    name: Add the issue to its project
+    uses: kanso-labs/actions/.github/workflows/_add-to-project.yaml@v4.4.0
+    with:
+      project-url: https://github.com/orgs/kanso-labs/projects/1
+    secrets:
+      client-id: ${{ secrets.RENOVATE_CLIENT_ID }}
+      private-key: ${{ secrets.RENOVATE_PRIVATE_KEY }}
+```
+
+- **Both secrets are required.** `GITHUB_TOKEN` cannot write to an organization project under any permissions, so there is no fallback. The app behind the secrets needs **Organization projects: Read and write**, and an app without it fails with a message naming the permission.
+- **Issues a bot opens stay off.** The standard keeps bot-filed issues such as Renovate's Dependency Dashboard off every project, so `skip-bots` defaults to true. A repository whose bot files real work items passes `skip-bots: false`.
+- **Adding an issue twice changes nothing**, so a reopened issue, or one somebody added by hand first, is safe.
+- **Adopting it takes two merges.** `issues` runs only the workflow on the default branch, so a caller has to merge before the next issue can show whether it works.
+
+## sync-labels
+
+The organization keeps one list of labels, [`labels.yaml`](https://github.com/kanso-labs/.github/blob/main/labels.yaml) in `kanso-labs/.github`: the few every repository carries, and the ones it no longer does. This workflow brings the calling repository in line with it.
+
+```yaml
+name: Sync labels
+
+on:
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  sync-labels:
+    name: Sync the labels
+    uses: kanso-labs/actions/.github/workflows/_sync-labels.yaml@v4.4.0
+```
+
+| Label | Effect |
+| --- | --- |
+| Listed under `labels` | Created if missing, edited if its name case, colour or wording differ |
+| Matching a `retired` pattern | Deleted with `delete-retired: true`, named in a notice otherwise |
+| In neither list | Left alone |
+
+A retired pattern matches a name exactly, or every name with its prefix when it ends in `*`. Labels in neither list are left alone on purpose: Dependabot creates ecosystem labels such as `javascript` for itself, and deleting them would only make it create them again.
+
+- **`delete-retired` is off by default.** Deleting a label strips it from every issue that carries it, so a repository turns deletion on only once its project has moved to the standard. Until then each run names what it would delete.
+- **It reads `labels.yaml` from `main`**, over the file's public URL, so a change to it reaches every caller on its next run, with nothing to pin.
+- **Labels move rarely**, so the organization applies the list by hand when it changes rather than on a schedule.

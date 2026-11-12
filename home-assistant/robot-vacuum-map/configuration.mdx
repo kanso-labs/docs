@@ -20,7 +20,7 @@ icon: "settings"
   </Step>
 </Steps>
 
-When the Xiaomi session expires, Home Assistant asks you to sign in again from the integration's card rather than removing it.
+When the Xiaomi session expires, the integration renews it by itself, with the token the sign-in handed out, and keeps the renewed session across restarts of Home Assistant. When it cannot be renewed, Home Assistant asks you to sign in again from the integration's card rather than removing it.
 
 ## Adjusting the map
 
