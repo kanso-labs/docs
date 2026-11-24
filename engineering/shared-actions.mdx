@@ -174,7 +174,7 @@ jobs:
 
 - **It fails while a release is missing.** For each of the latest five releases older than twelve hours, it reads the root `package.json` at the tag and asks each registry for that version, and the run fails while one is missing. An older release is outside what it looks at, and a repository releasing several packages from one tag stream is not covered.
 - **One issue holds the list.** "Tagged releases are missing from the registry" is opened the first time something is missing, rewritten while anything still is, and closed once nothing is. Its body carries the `gh workflow run` command that [republishes](#republish-a-version) each missing tag. Leave the title as it is: it is how the next run finds the issue.
-- **The grace period is for a busy runner.** A release can wait hours for its publish, so a missing version younger than `grace-hours` is logged and not reported. A repository sets the cron and `grace-hours` to when its own release lands, so the day's release is checked the same day.
+- **The grace period is for a busy runner.** A release can wait hours for its publish, so a missing version younger than `grace-hours` is logged and not reported.
 
 | Input | Default | What it sets |
 | --- | --- | --- |
