@@ -74,7 +74,7 @@ jobs:
 - **Released issues go back to Done.** A release pull request's changelog repeats each commit's `Closes #N`, which GitHub reads as the pull request closing those issues, and the [project workflows](/engineering/project-tracking#workflows) then move them to In review, where nothing moves a closed issue on. So every run with an application token sets each closed issue the latest release pull requests name back to Done, on every project it is on. The app needs **Organization projects: Read and write** for this; without it the run warns and skips the step, and the release is cut either way.
 - **`runs-on`** takes the runner as JSON, for a private repository that picks a self-hosted runner first.
 
-It outputs `release_created`, `releases_created`, `paths_released`, `prs`, `tag_name` and `version`.
+It outputs `release_created`, `releases_created`, `paths_released`, `prs`, `tag_name` and `version`. Do not publish from them: `release_created` is true only in the run that cut the release, and that run's checkout need not be the tagged commit. Publish on the tag instead, as under [publish-npm](#publish-npm). A repository that publishes also takes that section's concurrency group, keyed on the tag, in place of the plain `release-please` one.
 
 ## publish-npm
 
@@ -119,19 +119,11 @@ jobs:
 - **The tag's run has a concurrency group of its own.** In the shared group it would be one more pending run a push could replace. Keyed on the tag, two runs for the same version queue, and the second finds it published.
 - **There is one way to publish.** Do not keep a `needs: release-please` publish job beside it: two paths to one version race, and the one gated on `release_created` is the one that misses.
 - **Publishing a tag twice publishes once.** Each job asks its registry whether the version is already there and skips what is. Both refuse a tag whose commit is not the checkout's, whose version is not `package.json`'s, or whose commit is not on the default branch.
-- **A version older than `latest` does not take `latest`.** A version below the registry's `latest` is published under `backport`, a prerelease under `next`, and anything else under `latest`.
-- **npm first, then GitHub Packages.** The second job waits on the first, so the mirror never gets ahead of the original. npm authenticates through trusted publishing and attests the tarball; GitHub Packages takes `GITHUB_TOKEN` with `packages: write`. Pass `npm: false` for a package GitHub Packages alone carries.
+- **A version older than `latest` does not take `latest`.** A version below the registry's `latest` is published under `backport`, a prerelease under `next`, and anything else under `latest`. Each job decides from its own registry.
+- **npm first, then GitHub Packages.** The second job waits on the first, so the mirror never gets ahead of the original. npm authenticates through trusted publishing and attests the tarball; GitHub Packages takes `GITHUB_TOKEN` with `packages: write`. Pass `npm: false` for a package GitHub Packages alone carries, and grant the same three scopes anyway: the skipped npm job still declares `id-token: write`.
 - **A package's first npm version is published by hand.** npm registers a trusted publisher on the package's page, which exists only once a version does.
 
-### Republish a version
-
-A tagged version that did not publish takes one dispatch. In the repository, open **Actions**, then **Release Please**, then **Run workflow**, and pick the tag under **Use workflow from**. Or, from a terminal:
-
-```bash
-gh workflow run release-please.yaml --repo kanso-labs/<repository> --ref v1.2.3
-```
-
-That run is on the tag, like the release event's, so it publishes whatever a registry is missing and nothing else, and running it on a version that is already published does nothing. A tag cut before its repository adopted this shape carries the older workflow file, which cannot publish from a tag: publish it by hand, or release a new version instead.
+### Inputs
 
 | Input | Default | What it sets |
 | --- | --- | --- |
@@ -144,6 +136,16 @@ That run is on the tag, like the release event's, so it publishes whatever a reg
 | `registry-url` | `https://registry.npmjs.org` | Public registry to publish to and install from |
 | `runs-on` | `"ubuntu-latest"` | What the GitHub Packages job runs on, as JSON |
 | `tag-name` | the run's tag | Tag to publish; read from the ref on a tag run |
+
+### Republish a version
+
+A tagged version that did not publish takes one dispatch. In the repository, open **Actions**, then **Release Please**, then **Run workflow**, and pick the tag under **Use workflow from**. Or, from a terminal:
+
+```bash
+gh workflow run release-please.yaml --repo kanso-labs/<repository> --ref v1.2.3
+```
+
+That run is on the tag, like the release event's, so it publishes whatever a registry is missing and nothing else, and on a version both registries already carry it publishes nothing. A tag cut before its repository adopted this shape carries the older workflow file, which cannot publish from a tag: publish it by hand, or release a new version instead.
 
 ## check-published
 
@@ -170,9 +172,9 @@ jobs:
     uses: kanso-labs/actions/.github/workflows/_check-published.yaml@v4.6.0
 ```
 
-- **It checks the latest releases.** For each of the latest five releases older than twelve hours, it reads `package.json` at the tag and asks each registry for that version. An older release missing from a registry is outside what it looks at.
+- **It fails while a release is missing.** For each of the latest five releases older than twelve hours, it reads the root `package.json` at the tag and asks each registry for that version, and the run fails while one is missing. An older release is outside what it looks at, and a repository releasing several packages from one tag stream is not covered.
 - **One issue holds the list.** "Tagged releases are missing from the registry" is opened the first time something is missing, rewritten while anything still is, and closed once nothing is. Its body carries the `gh workflow run` command that [republishes](#republish-a-version) each missing tag. Leave the title as it is: it is how the next run finds the issue.
-- **The grace period is for a busy runner.** A release can wait hours for its publish, so a missing version younger than `grace-hours` is logged and not reported.
+- **The grace period is for a busy runner.** A release can wait hours for its publish, so a missing version younger than `grace-hours` is logged and not reported. A repository sets the cron and `grace-hours` to when its own release lands, so the day's release is checked the same day.
 
 | Input | Default | What it sets |
 | --- | --- | --- |
