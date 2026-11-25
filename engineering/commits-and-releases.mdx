@@ -41,6 +41,8 @@ A few repositories release on more types than these, and each says so in its `AG
 
 The organization's [shared Renovate preset](/engineering/renovate) types every Renovate commit `deps`, and each repository's `release-please-config.json` gives `deps` a visible **Dependencies** section. The two move together: that section list replaces release-please's defaults wholesale, so a type missing from it is invisible rather than merely unstyled.
 
+Two kinds of update are typed otherwise, because they never reach what a repository ships and should cut no release. Development tooling, such as linters, formatters and test runners, is typed `chore`. Updates from Renovate's `github-actions` manager, the actions and reusable workflows a repository's own workflows call, are typed `ci`. The shared actions are the exception: their workflows and composite actions are the product consumers pin, so their own Renovate config types action updates `deps` again, and those still cut a release under **Dependencies**.
+
 Dependabot's security fixes are titled the same way. Each repository's `.github/dependabot.yaml` sets `commit-message.prefix: deps`, because Dependabot's default title, such as `chore(deps-dev): Bump …`, is a `chore` that releases nothing, and fails commitlint where a repository checks titles. Robot Vacuum Map is the exception: `deps` is hidden in its changelog, so a fix to a runtime dependency there is typed `fix`, from Renovate and Dependabot alike, and that is what puts it in a release.
 
 ## Breaking changes
