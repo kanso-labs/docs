@@ -18,7 +18,7 @@ The settings that have to hold everywhere live in one shared preset, [`renovate-
 
 | Setting | Why |
 | --- | --- |
-| Commits are typed `deps` | So an upgrade cuts a release of its own. Development tooling is typed `chore` and, outside the shared actions, action updates `ci`, and neither releases. See [Commits and releases](/engineering/commits-and-releases#why-renovate-writes-deps). |
+| Commits are typed `deps` | So an upgrade cuts a release of its own. Development tooling is typed `chore`, and action updates `ci` everywhere but the shared actions, so neither releases. See [Commits and releases](/engineering/commits-and-releases#why-renovate-writes-deps). |
 | Minors and patches automerge | Once the required checks pass. A major waits for a person. |
 | No pull request limits | `prConcurrentLimit` and `prHourlyLimit` are 0, so every pending update is an open pull request. |
 | No Dependency Dashboard | With nothing held back, it would only restate the open pull requests. |
