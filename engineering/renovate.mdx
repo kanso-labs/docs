@@ -62,10 +62,12 @@ A repository that calls the [shared actions](/engineering/shared-actions) has to
 
 ## Asking Renovate to act now
 
-Renovate reads a ticked rebase checkbox only on its next run, up to three hours away. A repository that calls the shared [`_renovate-command.yaml`](/engineering/shared-actions#renovate-command) workflow can comment `@renovate rebase` on a Renovate pull request instead, which ticks the box and starts a run within a minute.
+Renovate reads a ticked rebase checkbox only on its next run, up to three hours away. A repository that calls the shared [`_renovate-command.yaml`](/engineering/shared-actions#renovate-command) workflow can comment `@renovate rebase` on a Renovate pull request instead, which ticks the box and starts a run within a minute, on that repository alone; [the command's section](/engineering/shared-actions#renovate-command) says when it can take longer.
 
 Anyone with access to the runner can also start a run by hand, with a dry run that logs what would change without writing anything:
 
 ```bash
 gh workflow run renovate.yaml --repo kanso-labs/renovate -f dryRun=full
 ```
+
+Add `-f repository=kanso-labs/<name>` to run on one repository, which is what the comment command does. The name has to be in the runner's `config.js`, or the run fails before it touches anything.
