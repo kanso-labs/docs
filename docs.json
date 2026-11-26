@@ -33,6 +33,17 @@
     }
   },
   "footer": {
+    "links": [
+      {
+        "header": "Kanso Labs",
+        "items": [
+          {
+            "href": "https://docs.kansolabs.org/privacy",
+            "label": "Privacy"
+          }
+        ]
+      }
+    ],
     "socials": {
       "github": "https://github.com/kanso-labs",
       "website": "https://kansolabs.org"
@@ -65,7 +76,8 @@
             "pages": [
               "index",
               "projects",
-              "principles"
+              "principles",
+              "privacy"
             ]
           }
         ],

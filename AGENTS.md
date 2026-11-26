@@ -25,9 +25,28 @@ from this repository, so an edit made there is overwritten by the next merge.
 | `home-assistant/robot-vacuum-map/` | The robot vacuum map integration                                      |
 | `engineering/`                     | The conventions, releases, project tracking, the shared CI, Renovate  |
 | `logo/`, `favicon.png`             | The mark, cropped from the organization's avatar                      |
+| `privacy.mdx`, `analytics.js`      | The privacy note, and the Google Analytics that it describes          |
 
 `docs.json` sorts the pages into five tabs: Home, Kanso UI, Style Dictionary plugin,
 Home Assistant and Engineering.
+
+**The site counts visits with Google Analytics 4, through `analytics.js`
+rather than Mintlify's own GA4 integration.** Mintlify includes every `.js` file
+here on every page, after the page is interactive. Its `integrations.ga4` is a
+bare `gtag('config')` with no Consent Mode, and the only consent gate it has,
+`integrations.cookies`, reads one local storage key once, as the page first
+mounts, so it can neither default ads signals to denied nor count a first visit
+that is granted after it looked. `analytics.js` is the same file every Kanso Labs
+site that loads gtag.js itself uses (kansolabs.org, the Home Assistant
+applications site and both Storybooks), so change it in step with them. It runs
+Google Consent Mode v2: ads signals denied for everyone; analytics storage denied
+in the EEA, the UK and Switzerland, where its banner asks before gtag.js loads,
+and granted elsewhere, where a notice offers to opt out, which `/privacy`, linked
+from the footer, keeps within reach. Whether to ask is read from the browser's
+time zone. The measurement ID, `G-G5J7LFENG0`, public by nature and shared with
+kansolabs.org, is in the file's `SITES`, since Mintlify gives the script no
+attributes of its own. It counts nothing on a host outside kansolabs.org, so
+`npx mint dev` draws the banner and sends nothing.
 
 ## Commands
 
