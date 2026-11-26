@@ -45,8 +45,12 @@ and granted elsewhere, where a notice offers to opt out, which `/privacy`, linke
 from the footer, keeps within reach. Whether to ask is read from the browser's
 time zone. The measurement ID, `G-G5J7LFENG0`, public by nature and shared with
 kansolabs.org, is in the file's `SITES`, since Mintlify gives the script no
-attributes of its own. It counts nothing on a host outside kansolabs.org, so
-`npx mint dev` draws the banner and sends nothing.
+attributes of its own. On any other host it does nothing at all, so neither
+`npx mint dev` nor a pull request's Mintlify preview shows the banner or the
+switch on `/privacy`; they are checked on docs.kansolabs.org itself, or locally
+with the host mapped to the dev server. Page views after the first come from the
+stream's enhanced measurement counting history changes, since Mintlify moves
+between pages without loading them, so that setting in GA must stay on.
 
 ## Commands
 
