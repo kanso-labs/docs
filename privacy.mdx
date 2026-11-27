@@ -14,7 +14,9 @@ Google signals and every advertising feature are off, and the site tells Google 
 
 ## Cookies
 
-While analytics is on, Google Analytics sets two cookies on this site alone, `_ga` and one beginning `_ga_`, to tell a returning browser from a new one. Each Kanso Labs site keeps its own, so your choice here applies to this site only. It is kept in your browser's local storage, and goes nowhere else.
+While analytics is on, Google Analytics sets two cookies on this site alone, `_ga` and one beginning `_ga_`, to tell a returning browser from a new one. Each Kanso Labs site keeps its own.
+
+Your choice is shared: it applies to every Kanso Labs site under kansolabs.org, so you answer once. It is kept for 13 months in a cookie on kansolabs.org, `kl_consent`, which only Kanso Labs sites read, and goes nowhere else.
 
 ## How long it is kept
 
@@ -32,8 +34,9 @@ Google also offers a [browser add-on that turns Google Analytics off](https://to
 
 Write to [contact@kansolabs.org](mailto:contact@kansolabs.org).
 
-{/* The switch. analytics.js, at the root of this repository, is what counts
-    visits and draws the banner, and it leaves window.kansoAnalytics for this to
+{/* The switch. analytics.js, at the root of this repository, loads the shared
+    https://kansolabs.org/analytics.js, which counts visits, draws the banner
+    and leaves window.kansoAnalytics for this to
     read and change. It may load after the page, so this listens for it. */}
 
 export const AnalyticsChoice = () => {
@@ -58,7 +61,7 @@ export const AnalyticsChoice = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '12px' }}>
       <p style={{ margin: 0 }}>
-        {on ? 'Analytics is on for this site in this browser.' : 'Analytics is off for this site in this browser.'}
+        {on ? 'Analytics is on for Kanso Labs sites in this browser.' : 'Analytics is off for Kanso Labs sites in this browser.'}
       </p>
       <button
         className="rounded-full border border-gray-400 px-4 py-2 text-sm font-medium dark:border-gray-500"
