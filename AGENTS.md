@@ -24,7 +24,7 @@ from this repository, so an edit made there is overwritten by the next merge.
 | `home-assistant/applications/`     | The applications repository, and installing from it                   |
 | `home-assistant/robot-vacuum-map/` | The robot vacuum map integration                                      |
 | `engineering/`                     | The conventions, releases, project tracking, the shared CI, Renovate  |
-| `logo/`, `favicon.png`             | The mark, cropped from the organization's avatar                      |
+| `logo/`, `favicon.svg`, `images/`  | The logo, favicon and social card, copied from kanso-labs/brand       |
 | `privacy.mdx`, `analytics.js`      | The privacy note, and the Google Analytics that it describes          |
 
 `docs.json` sorts the pages into five tabs: Home, Kanso UI, Style Dictionary plugin,
