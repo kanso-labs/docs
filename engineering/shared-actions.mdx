@@ -69,7 +69,7 @@ jobs:
 ```
 
 - **The concurrency group is required, and goes in the caller.** Overlapping runs race to cut the same tags. Keep `cancel-in-progress` off, so the last push still gets a run.
-- **An application token makes the release pull request run CI.** A pull request opened with `GITHUB_TOKEN` starts no workflow, so its checks never report. Without the two secrets the workflow falls back to `GITHUB_TOKEN`, warns, and leaves the merge to a person.
+- **An application token makes the release pull request run CI.** A pull request opened with `GITHUB_TOKEN` starts no workflow, so its checks never report. Without the two secrets the workflow falls back to `GITHUB_TOKEN`, warns, and leaves the merge to a person. Inside `kanso-labs` that fallback cannot cut a release at all, since only the application may create a release tag ([who can publish](#who-can-publish)).
 - **The schedule batches a day into one release.** Every push keeps the release pull request current, and only the scheduled run merges it. Before merging, the workflow waits for the checks and refuses while a commit the changelog would list has landed since the pull request was computed.
 - **Released issues go back to Done.** A release pull request's changelog repeats each commit's `Closes #N`, which GitHub reads as the pull request closing those issues, and the [project workflows](/engineering/project-tracking#workflows) then move them to In review, where nothing moves a closed issue on. So every run with an application token sets each closed issue the latest release pull requests name back to Done, on every project it is on. The app needs **Organization projects: Read and write** for this; without it the run warns and skips the step, and the release is cut either way.
 - **`runs-on`** takes the runner as JSON, for a private repository that picks a self-hosted runner first.
@@ -100,7 +100,7 @@ jobs:
   release-please:
     name: Propose releases
     if: github.ref_type != 'tag'
-    uses: kanso-labs/actions/.github/workflows/_release-please.yaml@v4.6.0
+    uses: kanso-labs/actions/.github/workflows/_release-please.yaml@v4.8.0
     # with and secrets as under release-please above
 
   publish:
@@ -153,7 +153,7 @@ The two only hold together: the environment checks a tag's name, and the ruleset
 To turn the environment on in a repository, in this order:
 
 1. Create `release`, with its deployment tags limited to the release tags. A job naming an environment that does not exist creates it with no policy, and nothing fails to say so.
-2. Pass `environment: release` on the tag run only, and let a release go through. A dry run on a pull request is on a branch, and the environment refuses it.
+2. Pass `environment: release` on the tag run only, and let a release go through, then check that the run shows the `release` environment and that its deployment tags are still limited. A dry run on a pull request, or a dispatch on a branch with an explicit `tag-name`, is on a branch, and the environment refuses it.
 3. On npmjs.com, an owner of the package binds its trusted publisher to `release`, under **Settings**, **Trusted publishing**. A publisher bound before step 2 would refuse every publish in between.
 
 ### Republish a version
