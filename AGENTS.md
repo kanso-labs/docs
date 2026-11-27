@@ -36,16 +36,20 @@ here on every page, after the page is interactive. Its `integrations.ga4` is a
 bare `gtag('config')` with no Consent Mode, and the only consent gate it has,
 `integrations.cookies`, reads one local storage key once, as the page first
 mounts, so it can neither default ads signals to denied nor count a first visit
-that is granted after it looked. `analytics.js` is the same file every Kanso Labs
-site that loads gtag.js itself uses (kansolabs.org, the Home Assistant
-applications site and both Storybooks), so change it in step with them. It runs
+that is granted after it looked. `analytics.js` here only writes the `<script>`
+tag that loads `https://kansolabs.org/analytics.js`, the one copy every Kanso
+Labs site that loads gtag.js itself loads, kept in
+kanso-labs/kanso-labs.github.io; change the behaviour there. If it fails to
+load, the site has no analytics and no banner, and nothing else breaks. It runs
 Google Consent Mode v2: ads signals denied for everyone; analytics storage denied
 in the EEA, the UK and Switzerland, where its banner asks before gtag.js loads,
 and granted elsewhere, where a notice offers to opt out, which `/privacy`, linked
 from the footer, keeps within reach. Whether to ask is read from the browser's
-time zone. The measurement ID, `G-G5J7LFENG0`, public by nature and shared with
-kansolabs.org, is in the file's `SITES`, since Mintlify gives the script no
-attributes of its own. On any other host it does nothing at all, so neither
+time zone. The visitor answers once for every Kanso Labs site: the choice is
+the `kl_consent` cookie on `.kansolabs.org`. The measurement ID,
+`G-G5J7LFENG0`, public by nature and shared with kansolabs.org, is set on that
+tag by the local `analytics.js`, since Mintlify gives a script no attributes of
+its own. On any other host it does nothing at all, so neither
 `npx mint dev` nor a pull request's Mintlify preview shows the banner or the
 switch on `/privacy`; they are checked on docs.kansolabs.org itself, or locally
 with the host mapped to the dev server. Page views after the first come from the
