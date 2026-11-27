@@ -24,7 +24,7 @@
     ]
   },
   "description": "Guides for Kanso Labs' open-source projects: the Kanso UI design system, the Style Dictionary plugin, Home Assistant packaging and the conventions behind them.",
-  "favicon": "/favicon.png",
+  "favicon": "/favicon.svg",
   "fonts": {
     "family": "Roboto Flex",
     "heading": {
@@ -50,9 +50,9 @@
     }
   },
   "logo": {
-    "dark": "/logo/dark.png",
+    "dark": "/logo/dark.svg",
     "href": "https://docs.kansolabs.org",
-    "light": "/logo/light.png"
+    "light": "/logo/light.svg"
   },
   "name": "Kanso Labs",
   "navbar": {
@@ -220,6 +220,16 @@
         "tab": "Engineering"
       }
     ]
+  },
+  "seo": {
+    "metatags": {
+      "og:image": "https://docs.kansolabs.org/images/og-card-1200x630.png",
+      "og:image:alt": "Kanso Labs",
+      "og:image:height": "630",
+      "og:image:width": "1200",
+      "twitter:card": "summary_large_image",
+      "twitter:image": "https://docs.kansolabs.org/images/og-card-1200x630.png"
+    }
   },
   "theme": "willow"
 }
