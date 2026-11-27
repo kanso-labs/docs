@@ -110,7 +110,10 @@ jobs:
       contents: read
       id-token: write
       packages: write
-    uses: kanso-labs/actions/.github/workflows/_publish-npm.yaml@v4.6.0
+    uses: kanso-labs/actions/.github/workflows/_publish-npm.yaml@v4.8.0
+    with:
+      # Create the environment first, or this creates it unprotected; see Who can publish below.
+      environment: release
 ```
 
 - **It runs on the tag.** release-please tags the release pull request's merge commit whichever run cuts the release, but that run's checkout is whatever commit started it. When a push lands before the merge's run starts, the concurrency group drops that run, and a later one cuts the release from a later commit. Publishing from that run would ship the wrong code; refusing, as the older shape did, left the version tagged and never published ([kanso-labs/actions#123](https://github.com/kanso-labs/actions/issues/123)). A run on the release event checks out the tag's own commit, however the release was cut, and npm's provenance names that commit.
@@ -129,6 +132,7 @@ jobs:
 | --- | --- | --- |
 | `build-script` | `build` | npm script producing what is published; `''` skips the build |
 | `dry-run` | `false` | Publish with `--dry-run`, uploading nothing |
+| `environment` | empty | Environment both jobs run in; empty runs them in none |
 | `github-registry-url` | `https://npm.pkg.github.com` | Registry the second job publishes to |
 | `ignore-scripts` | `true` | Pass `--ignore-scripts` to `npm ci` and the publish |
 | `node-version-file` | `.tool-versions` | File the Node version is read from |
@@ -136,6 +140,21 @@ jobs:
 | `registry-url` | `https://registry.npmjs.org` | Public registry to publish to and install from |
 | `runs-on` | `"ubuntu-latest"` | What the GitHub Packages job runs on, as JSON |
 | `tag-name` | the run's tag | Tag to publish; read from the ref on a tag run |
+
+### Who can publish
+
+Two guards stand in front of a release, and neither asks a person to approve anything ([kanso-labs/actions#126](https://github.com/kanso-labs/actions/issues/126)).
+
+- **Only the Kanso Labs application makes a release tag.** The tag ruleset `kanso-labs-release-tags` covers `v*` and `*-v*` tags in every repository that releases, and refuses creating, moving or deleting one to anyone but the application release-please signs in as. A person cannot push a release tag, and a release drafted by hand cannot create one. A repository on the `GITHUB_TOKEN` fallback therefore cannot cut a release at all: install the application and pass its two secrets rather than giving GitHub Actions a bypass, which would let anyone who can push a workflow tag.
+- **Only a run on a release tag publishes.** Each publishing repository has an environment named `release` whose deployment tags are limited to its release tags, and the caller passes `environment: release`. A run on a branch is refused before it checks anything out. On npm, the trusted publisher is bound to that environment, so a token minted outside it cannot publish even from a rewritten workflow. GitHub Packages has no such check: its job runs in the environment only because the workflow names it, so a branch that rewrites the workflow can still publish there.
+
+The two only hold together: the environment checks a tag's name, and the ruleset is what makes a release tag one only the application made. There is no required reviewer, which would put a person in the path of every release, and which a private repository on GitHub Team cannot have anyway.
+
+To turn the environment on in a repository, in this order:
+
+1. Create `release`, with its deployment tags limited to the release tags. A job naming an environment that does not exist creates it with no policy, and nothing fails to say so.
+2. Pass `environment: release` on the tag run only, and let a release go through. A dry run on a pull request is on a branch, and the environment refuses it.
+3. On npmjs.com, an owner of the package binds its trusted publisher to `release`, under **Settings**, **Trusted publishing**. A publisher bound before step 2 would refuse every publish in between.
 
 ### Republish a version
 

@@ -68,6 +68,8 @@ Each repository that releases calls the shared [`_release-please.yaml`](/enginee
 
 A package publishes from that tag. The release fires `release: published`, and the same `release-please.yaml` then runs on the tag and publishes it through [`_publish-npm.yaml`](/engineering/shared-actions#publish-npm): to npm with trusted publishing and provenance, then to GitHub Packages. Because the publish starts from the tag, a commit landing on `main` while the release's run waits can no longer leave the version tagged and never published.
 
+Only the Kanso Labs application can create a release tag, and only a run on one can publish: a tag ruleset refuses anyone else's `v*` tag, and the publish runs in a `release` environment limited to those tags. Neither asks anyone to approve. [Who can publish](/engineering/shared-actions#who-can-publish) has the details.
+
 A daily [check](/engineering/shared-actions#check-published) compares the latest releases with the registries and opens an issue when one is missing. The issue carries the command that [republishes](/engineering/shared-actions#republish-a-version) it: one dispatch of **Release Please** on the tag, which publishes only what a registry is missing.
 
 <Note>
